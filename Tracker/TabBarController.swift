@@ -23,11 +23,12 @@ final class TabBarController: UITabBarController {
     
     private func setupTabBar() {
         let trackerViewController = TrackerViewController()
-        trackerViewController.tabBarItem = UITabBarItem(title: "Трекеры", image: UIImage(named: "record.circle.fill"), selectedImage: nil)
+        let trackers = UINavigationController(rootViewController: trackerViewController )
+        trackers.tabBarItem = UITabBarItem(title: "Трекеры", image: UIImage(systemName: "record.circle.fill"), selectedImage: nil)
         
         let statisticsViewController = StatisticsViewController()
         statisticsViewController.tabBarItem = UITabBarItem(title: "Статистика", image: UIImage(named: "hare.fill"), selectedImage: nil)
         
-        self.viewControllers = [trackerViewController, statisticsViewController]
+        self.viewControllers = [trackers, statisticsViewController]
     }
 }

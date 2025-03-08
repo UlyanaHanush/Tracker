@@ -5,9 +5,16 @@
 //  Created by ulyana on 25.02.25.
 //
 
+protocol TrackerTypeDelegate {
+    func didSelectType(_ type: TrackerType)
+}
+
 import UIKit
 
-final class TrackerViewController: UIViewController {
+final class TrackerViewController: UIViewController, UISearchBarDelegate, TrackerTypeDelegate {
+    
+    var categories: [TrackerCategory] = []
+    var completedTrackers: [TrackerRecord] = []
     
     // MARK: - Private Properties
     
@@ -18,44 +25,16 @@ final class TrackerViewController: UIViewController {
         return formatter
     }()
     
-    private lazy var addButton: UIButton = {
-        let button = UIButton()
-        button.setImage(UIImage(named: "plus"), for: .normal)
-        button.addTarget(nil, action: #selector(didTapAddButton(_:)), for: .touchUpInside)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        return button
-    }()
-    
-    private lazy var trackerLabel: UILabel = {
-        let label = UILabel()
-        label.text = "Трекеры"
-        label.font = .boldSystemFont(ofSize: 34)
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
-    private lazy var searchBar: UISearchBar = {
-        let searchBar = UISearchBar()
-        searchBar.placeholder = "Поиск"
-        searchBar.searchTextField.font = .systemFont(ofSize: 17)
-        searchBar.backgroundImage = UIImage()
-        searchBar.translatesAutoresizingMaskIntoConstraints = false
-        return searchBar
-    }()
-    
-    private lazy var datePicker: UIDatePicker = {
+    private lazy var datePicker: UIBarButtonItem = {
         let picker = UIDatePicker()
         picker.preferredDatePickerStyle = .compact
         picker.datePickerMode = .date
         picker.locale = Locale(identifier: "ru_RU")
         picker.tintColor = .tBlue
-        picker.addTarget(self, action: #selector(datePickerValueChanged), for: .valueChanged)
-        if let textLabel = picker.subviews.first?.subviews.first as? UILabel {
-            textLabel.font = .systemFont(ofSize: 17)
-            
-        }
-        picker.translatesAutoresizingMaskIntoConstraints = false
-        return picker
+        picker.addTarget(self, action: #selector(datePickerValueChanged(_:)), for: .valueChanged)
+
+        let datePicker = UIBarButtonItem(customView: picker)
+        return datePicker
     }()
     
     private lazy var emptyTrackerImage: UIImageView = {
@@ -87,38 +66,28 @@ final class TrackerViewController: UIViewController {
         addSubviews()
     }
     
+    // MARK: - Publike Methods
+    
+    func didSelectType(_ type: TrackerType) {
+        showHabitCreatingScreen(type)
+    }
+    
     // MARK: - IBAction
     
     @IBAction private func didTapAddButton(_ sender: Any) {
+        showNewTrackerScreen()
     }
     
-    @IBAction private func datePickerValueChanged(_ sender: Any) {
+    @IBAction private func datePickerValueChanged(_ sender: UIDatePicker) {
+        let selectedDate = sender.date
+        let formattedDate = dateFormatter.string(from: selectedDate)
+        print("Выбранная дата: \(formattedDate)")
     }
     
     // MARK: - Private Methods
     
     private func setupConstraints() {
         NSLayoutConstraint.activate([
-            // addButton Constraints
-            addButton.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
-            addButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
-            addButton.heightAnchor.constraint(equalToConstant: 42),
-            addButton.widthAnchor.constraint(equalToConstant: 42),
-            
-            // trackerLabel Constraints
-            trackerLabel.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
-            trackerLabel.topAnchor.constraint(equalTo: addButton.bottomAnchor),
-            
-            // searchBar Constraints
-            searchBar.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 16),
-            searchBar.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
-            searchBar.topAnchor.constraint(equalTo: trackerLabel.bottomAnchor, constant: 7),
-            
-            // calendarButton Constraints
-            datePicker.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -16),
-            datePicker.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 5),
-            datePicker.widthAnchor.constraint(equalToConstant: 120),
-            
             // emptyTrackerImage Constraints
             emptyTrackerImage.centerYAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerYAnchor),
             emptyTrackerImage.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
@@ -130,14 +99,50 @@ final class TrackerViewController: UIViewController {
     }
     
     private func addSubviews() {
-        view.addSubview(addButton)
-        view.addSubview(trackerLabel)
-        view.addSubview(searchBar)
-        view.addSubview(datePicker)
         view.addSubview(emptyTrackerImage)
         view.addSubview(emptyTrackerText)
         view.backgroundColor = .white
 
         setupConstraints()
+        setupNavigationBar()
+    }
+    
+    private func setupNavigationBar() {
+        guard let navigationBar = navigationController?.navigationBar else { return }
+        navigationBar.topItem?.setRightBarButton(datePicker, animated: true)
+        
+        navigationBar.topItem?.title = "Трекеры"
+        navigationBar.prefersLargeTitles = true
+        navigationBar.topItem?.largeTitleDisplayMode = .always
+                
+        let searchController = UISearchController(searchResultsController: nil)
+        searchController.searchBar.delegate = self
+        searchController.searchBar.placeholder = "Поиск"
+        navigationBar.topItem?.searchController = searchController
+        
+        let leftButton = UIBarButtonItem(barButtonSystemItem: .add, target: self, action: #selector(didTapAddButton))
+        leftButton.tintColor = .black
+        navigationBar.topItem?.setLeftBarButton(leftButton, animated: true)
+    }
+    
+    private func showNewTrackerScreen() {
+        let newTrackerTypeViewController = NewTrackerTypeViewController()
+        let newTrackerTypePresenter = NewTrackerTypePresenter()
+        newTrackerTypeViewController.presenter = newTrackerTypePresenter
+        newTrackerTypePresenter.view = newTrackerTypeViewController
+        newTrackerTypePresenter.delegate = self
+        
+        let navigatorController = UINavigationController(rootViewController: newTrackerTypeViewController)
+        present(navigatorController, animated: true, completion: nil)
+    }
+    
+    private func showHabitCreatingScreen(_ type: TrackerType) {
+        let habitCreatingViewController = HabitCreatingViewController()
+        let habitCreatingPresenter = HabitCreatingPresenter(trackerType: type)
+        habitCreatingViewController.presenter = habitCreatingPresenter
+        habitCreatingPresenter.view = habitCreatingViewController
+        
+        let navigatorController = UINavigationController(rootViewController: habitCreatingViewController)
+        present(navigatorController, animated: true, completion: nil)
     }
 }
