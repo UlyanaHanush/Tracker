@@ -34,7 +34,7 @@ final class TextFieldCell: UITableViewCell {
         contentView.addSubview(trackerName)
         
         setupConstraints()
-        contentView.backgroundColor = .bgTabelView
+        contentView.backgroundColor = .bgTableView
     }
     
     // MARK: - Private Methods

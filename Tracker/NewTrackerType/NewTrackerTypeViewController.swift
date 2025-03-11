@@ -19,15 +19,6 @@ final class NewTrackerTypeViewController: UIViewController, TrackerTypeViewContr
     
     // MARK: - Private Properties
     
-    private lazy var titleLabel: UILabel = {
-        let label = UILabel()
-        label.text = "Создание трекера"
-        label.font = UIFont.systemFont(ofSize: 16)
-        label.textAlignment = .center
-        label.translatesAutoresizingMaskIntoConstraints = false
-        return label
-    }()
-    
     private lazy var habitButton: UIButton = {
         let button = UIButton()
         button.layer.masksToBounds = false
@@ -88,10 +79,6 @@ final class NewTrackerTypeViewController: UIViewController, TrackerTypeViewContr
     
     private func setupConstraints() {
         NSLayoutConstraint.activate([
-            // titleLabel Constraints
-            titleLabel.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
-            titleLabel.topAnchor.constraint(equalTo: super.view.topAnchor, constant: 80),
-            
             // habitButton Constraints
             habitButton.centerYAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerYAnchor),
             habitButton.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
@@ -109,11 +96,16 @@ final class NewTrackerTypeViewController: UIViewController, TrackerTypeViewContr
     }
     
     private func addSubviews() {
-        view.addSubview(titleLabel)
         view.addSubview(habitButton)
         view.addSubview(irregularEventsButton)
         
         setupConstraints()
+        setupNavigationBar()
         view.backgroundColor = .white
+    }
+    
+    private func setupNavigationBar() {
+        guard let navigationBar = navigationController?.navigationBar else { return }
+        navigationBar.topItem?.title = "Создание трекера"
     }
 }

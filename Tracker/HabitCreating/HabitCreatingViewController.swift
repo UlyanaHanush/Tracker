@@ -70,7 +70,7 @@ final class HabitCreatingViewController: UIViewController, HabitCreatingViewCont
         tableView.allowsSelection = true
         
         tableView.register(TextFieldCell.self, forCellReuseIdentifier: TextFieldCell.reuseIdentifier)
-        tableView.register(CategoriesAndScheduleCell.self, forCellReuseIdentifier: CategoriesAndScheduleCell.reuseIdentifier)
+        tableView.register(TableViewCell.self, forCellReuseIdentifier: TableViewCell.reuseIdentifier)
         tableView.rowHeight = 75
         
         tableView.delegate = self
@@ -150,7 +150,20 @@ final class HabitCreatingViewController: UIViewController, HabitCreatingViewCont
 
 extension HabitCreatingViewController: UITableViewDelegate {
     // действия при тапе на ячейку
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) { }
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        guard let section = Section(rawValue: indexPath.section) else { return }
+        switch rowsForSection(section)[indexPath.row] {
+        case .category:
+            print("category")
+        case .schedule:
+            dismiss(animated: true) {
+                self.presenter?.selectSchedule()
+            }
+        default:
+            break
+        }
+        tableView.deselectRow(at: indexPath, animated: true)
+    }
 }
 
 // MARK: - UITableViewDataSource
@@ -175,20 +188,17 @@ extension HabitCreatingViewController: UITableViewDataSource {
             return cell
             
         case .category:
-            guard let cell = tableView.dequeueReusableCell(withIdentifier: CategoriesAndScheduleCell.reuseIdentifier) as? CategoriesAndScheduleCell else { return UITableViewCell() }
+            guard let cell = tableView.dequeueReusableCell(withIdentifier: TableViewCell.reuseIdentifier) as? TableViewCell else { return UITableViewCell() }
             cell.textLabel?.text = "Категория"
+            cell.accessoryType = .disclosureIndicator
             return cell
             
         case .schedule:
-            guard let cell = tableView.dequeueReusableCell(withIdentifier: CategoriesAndScheduleCell.reuseIdentifier) as? CategoriesAndScheduleCell else { return UITableViewCell() }
+            guard let cell = tableView.dequeueReusableCell(withIdentifier: TableViewCell.reuseIdentifier) as? TableViewCell else { return UITableViewCell() }
             cell.textLabel?.text = "Расписание"
+            cell.accessoryType = .disclosureIndicator
             return cell
         }
-    }
-
-    func tableView(_ tableView: UITableView, willDisplayHeaderView view: UIView, forSection section: Int) {
-        // Изменяем фон секции
-        view.tintColor = .tGray
     }
 }
 
