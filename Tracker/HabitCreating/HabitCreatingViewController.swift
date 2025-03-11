@@ -7,11 +7,15 @@
 
 import UIKit
 
+protocol ScheduleDelegate {
+    func didSelect(weekdays: [Int])
+}
+
 protocol HabitCreatingViewControllerProtocol {
     var presenter: HabitCreatingPresenterProtocol? { get }
 }
 
-final class HabitCreatingViewController: UIViewController, HabitCreatingViewControllerProtocol {
+final class HabitCreatingViewController: UIViewController, HabitCreatingViewControllerProtocol,  ScheduleDelegate {
     
     // MARK: - Publike Properties
     
@@ -88,6 +92,14 @@ final class HabitCreatingViewController: UIViewController, HabitCreatingViewCont
         addSubviews()
     }
     
+    // MARK: - TimetableDelegate
+       
+    func didSelect(weekdays: [Int]) {
+        presenter?.schedule = weekdays
+//        updateButtonState()
+//        tableView.reloadData()
+    }
+    
     // MARK: - IBAction
     
     @IBAction private func didCreateButton(_ sender: Any) {
@@ -144,6 +156,19 @@ final class HabitCreatingViewController: UIViewController, HabitCreatingViewCont
             }
         }
     }
+    
+    private func showScheduleScreen() {
+        let scheduleViewController = ScheduleViewController()
+        let schedulePresenter = SchedulePresenter(view: scheduleViewController, selectedWeekdays: presenter?.schedule ?? [], delegate: self)
+        scheduleViewController.presenter = schedulePresenter
+        
+        let navigatorController = UINavigationController(rootViewController: scheduleViewController)
+        present(navigatorController, animated: true, completion: nil)
+    }
+    
+    private func showCategoryScreen() {
+        
+    }
 }
 
 // MARK: - UITableViewDelegate
@@ -154,11 +179,9 @@ extension HabitCreatingViewController: UITableViewDelegate {
         guard let section = Section(rawValue: indexPath.section) else { return }
         switch rowsForSection(section)[indexPath.row] {
         case .category:
-            print("category")
+            showCategoryScreen()
         case .schedule:
-            dismiss(animated: true) {
-                self.presenter?.selectSchedule()
-            }
+            showScheduleScreen()
         default:
             break
         }

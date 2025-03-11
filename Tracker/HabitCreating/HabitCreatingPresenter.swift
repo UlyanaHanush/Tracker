@@ -10,7 +10,7 @@ import Foundation
 protocol HabitCreatingPresenterProtocol {
     var view: HabitCreatingViewControllerProtocol? { get }
     var trackerType: TrackerType { get set }
-    func selectSchedule ()
+    var schedule: [Int] { get set }
 }
 
 final class HabitCreatingPresenter: HabitCreatingPresenterProtocol {
@@ -20,12 +20,9 @@ final class HabitCreatingPresenter: HabitCreatingPresenterProtocol {
     var view: HabitCreatingViewControllerProtocol?
     var trackerType: TrackerType
     var delegate: HabitCreatingDelegate?
+    var schedule: [Int] = []
     
     init(trackerType: TrackerType) {
         self.trackerType = trackerType
-    }
-    
-    func selectSchedule () {
-        delegate?.didSelectSchedule()
     }
 }

@@ -9,8 +9,9 @@ import Foundation
 
 protocol SchedulePresenterProtocol {
     var view: ScheduleViewControllerProtocol? { get }
-    var selectedWeekDays: [String:Bool] { get set }
+    var selectedWeekdays: [Int] { get set }
     func getWeekDays() -> [String]
+    func done()
 }
 
 final class SchedulePresenter: SchedulePresenterProtocol {
@@ -18,8 +19,15 @@ final class SchedulePresenter: SchedulePresenterProtocol {
     // MARK: - Publike Properties
     
     var view: ScheduleViewControllerProtocol?
+    var delegate: ScheduleDelegate?
     
-    var selectedWeekDays = [String:Bool]()
+    var selectedWeekdays: [Int]
+    
+    init(view: ScheduleViewControllerProtocol, selectedWeekdays: [Int], delegate: ScheduleDelegate) {
+          self.view = view
+          self.delegate = delegate
+          self.selectedWeekdays = selectedWeekdays
+      }
     
     func getWeekDays() -> [String] {
         var calendar = Calendar.current
@@ -27,6 +35,11 @@ final class SchedulePresenter: SchedulePresenterProtocol {
         calendar.firstWeekday = 3
         let weekdays = calendar.weekdaySymbols
         return weekdays
+    }
+    
+    func done() {
+        delegate?.didSelect(weekdays: selectedWeekdays)
+        print(selectedWeekdays)
     }
 }
 

@@ -10,13 +10,13 @@ protocol TrackerTypeDelegate {
 }
 
 protocol HabitCreatingDelegate {
-    func didSelectSchedule()
+    func didCreateTracker(_ tracker: Tracker, at category: TrackerCategory)
 }
 
 import UIKit
 
 final class TrackerViewController: UIViewController, UISearchBarDelegate, TrackerTypeDelegate, HabitCreatingDelegate {
-    
+
     var categories: [TrackerCategory] = []
     var completedTrackers: [TrackerRecord] = []
     
@@ -76,8 +76,11 @@ final class TrackerViewController: UIViewController, UISearchBarDelegate, Tracke
         showHabitCreatingScreen(type)
     }
     
-    func didSelectSchedule() {
-        showScheduleScreen()
+    // MARK: - NewHabitDelegate
+    
+    func didCreateTracker(_ tracker: Tracker, at category: TrackerCategory) {
+//        presenter?.addTracker(tracker, at: category)
+//        trackersCollectionView.reloadData()
     }
     
     // MARK: - IBAction
@@ -152,16 +155,6 @@ final class TrackerViewController: UIViewController, UISearchBarDelegate, Tracke
         habitCreatingPresenter.delegate = self
         
         let navigatorController = UINavigationController(rootViewController: habitCreatingViewController)
-        present(navigatorController, animated: true, completion: nil)
-    }
-    
-    private func showScheduleScreen() {
-        let scheduleViewController = ScheduleViewController()
-        let schedulePresenter = SchedulePresenter()
-        schedulePresenter.view = scheduleViewController
-        scheduleViewController.presenter = schedulePresenter
-        
-        let navigatorController = UINavigationController(rootViewController: scheduleViewController)
         present(navigatorController, animated: true, completion: nil)
     }
 }

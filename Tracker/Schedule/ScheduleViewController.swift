@@ -65,10 +65,17 @@ final class ScheduleViewController: UIViewController, ScheduleViewControllerProt
     
     @IBAction private func didReadyButton(_ sender: Any) {
         dismiss(animated: true)
+        presenter?.done()
     }
     
     @IBAction private func didChangeSwitch(_ sender: UISwitch) {
-        print(sender.tag)
+        guard var presenter else { return }
+        
+        if sender.isOn {
+            presenter.selectedWeekdays.append(sender.tag)
+        } else if let index = presenter.selectedWeekdays.firstIndex(of: sender.tag) {
+            presenter.selectedWeekdays.remove(at: index)
+        }
     }
     
     // MARK: - Private Methods
@@ -130,13 +137,14 @@ extension ScheduleViewController: UITableViewDataSource {
         cell.accessoryType = .disclosureIndicator
         
         let weekdaySwitch = UISwitch()
+        if let selected = presenter?.selectedWeekdays {
+            weekdaySwitch.isOn = selected.contains(indexPath.row)
+        }
         cell.accessoryView = weekdaySwitch
         weekdaySwitch.onTintColor = .tBlue
+        weekdaySwitch.tag = indexPath.row
         weekdaySwitch.addTarget(self, action: #selector(didChangeSwitch), for: .touchUpInside)
-        weekdaySwitch.isOn = false
-        if let day = presenter?.getWeekDays() {
-            presenter?.selectedWeekDays[day[indexPath.row]] = weekdaySwitch.isOn
-        }
+        
         return cell
     }
 }
