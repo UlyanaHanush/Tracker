@@ -45,7 +45,6 @@ final class SchedulePresenter: SchedulePresenterProtocol {
     
     func done() {
         delegate?.didSelect(weekdays: selectedWeekdays)
-        print(selectedWeekdays)
     }
 }
 

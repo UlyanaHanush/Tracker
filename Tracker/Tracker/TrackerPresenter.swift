@@ -18,16 +18,9 @@ final class TrackersPresenter: TrackersPresenterProtocol {
     // MARK: - Publike Properties
     
     var view: TrackersViewControllerProtocol?
-    var categories: [TrackerCategory] = [TrackerCategory(title: "good", trackers: [Tracker(id: UUID(), name: "", color: .black, emoji: "🌺", schedule: [1,2])])]
-    
-//    func addTracker(_ tracker: Tracker, at category: TrackerCategory) {
-//        service.addTracker(tracker, at: category)
-//        updateCategories()
-//    }
+    var categories: [TrackerCategory] = [TrackerCategory(title: "good", trackers: [Tracker(id: UUID(), name: "Help mom", color: .red, emoji: "🌺", schedule: [1,2])])]
     
     func addTracker(_ tracker: Tracker, at category: TrackerCategory) {
-        print("tracker")
-        
         var trackers = category.trackers
         trackers.append(tracker)
         let newCategory = TrackerCategory(title: category.title, trackers: trackers)

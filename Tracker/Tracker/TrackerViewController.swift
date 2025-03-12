@@ -66,7 +66,9 @@ final class TrackerViewController: UIViewController, UISearchBarDelegate, Tracke
     private lazy var trackersCollectionView:  UICollectionView = {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
         collectionView.backgroundColor = .white
+        collectionView.contentInset = UIEdgeInsets(top: 24, left: 16, bottom: 24, right: 16)
         collectionView.register(TrackerCollectionViewCell.self, forCellWithReuseIdentifier: TrackerCollectionViewCell.cellIdentifier)
+        collectionView.register(TrackerSupplementaryView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: TrackerSupplementaryView.supplementaryIdentifier)
         
         collectionView.dataSource = self
         collectionView.delegate = self
@@ -93,8 +95,6 @@ final class TrackerViewController: UIViewController, UISearchBarDelegate, Tracke
     
     func didCreateTracker(_ tracker: Tracker, at category: TrackerCategory) {
         presenter?.addTracker(tracker, at: category)
-        print(tracker)
-        print(category)
         trackersCollectionView.reloadData()
     }
     
@@ -215,12 +215,14 @@ extension TrackerViewController: UICollectionViewDataSource {
 extension TrackerViewController: UICollectionViewDelegateFlowLayout {
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
-        return CGSize(width: (collectionView.bounds.width - Contstants.contentInsets * 2 - Contstants.spacing) / 2 , height: 148)
+        let contentInsets: CGFloat = 16
+        let spacing: CGFloat = 9
+        return CGSize(width: (collectionView.bounds.width - contentInsets * 2 - spacing) / 2 , height: 148)
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
-        
-        return Contstants.spacing
+        let spacing: CGFloat = 9
+        return spacing
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
@@ -234,8 +236,11 @@ extension TrackerViewController: UICollectionViewDelegateFlowLayout {
     }
 }
 
-enum Contstants {
-    static let cellIdentifier = "TrackerCell"
-    static let contentInsets: CGFloat = 16
-    static let spacing: CGFloat = 9
+extension TrackerViewController: UICollectionViewDelegate {
+    
+    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        guard let view = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: TrackerSupplementaryView.supplementaryIdentifier, for: indexPath) as? TrackerSupplementaryView else { return UICollectionReusableView() }
+        view.title.text = presenter?.categories[indexPath.section].title
+        return view
+    }
 }

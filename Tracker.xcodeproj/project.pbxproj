@@ -18,6 +18,7 @@
 		CE2E670B2D806D9700DF27D7 /* TrackerPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE2E670A2D806D9700DF27D7 /* TrackerPresenter.swift */; };
 		CE2E670E2D81A5B600DF27D7 /* TrackerCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE2E670D2D81A5B600DF27D7 /* TrackerCollectionViewCell.swift */; };
 		CE2E67122D81C7F300DF27D7 /* CategoryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE2E67112D81C7F300DF27D7 /* CategoryViewController.swift */; };
+		CE2E67142D81E87E00DF27D7 /* TrackerSupplementaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE2E67132D81E87E00DF27D7 /* TrackerSupplementaryView.swift */; };
 		CEEF7AE82D6DEEE40047305A /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEEF7AE72D6DEEE40047305A /* AppDelegate.swift */; };
 		CEEF7AEA2D6DEEE40047305A /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEEF7AE92D6DEEE40047305A /* SceneDelegate.swift */; };
 		CEEF7AEC2D6DEEE40047305A /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEEF7AEB2D6DEEE40047305A /* ViewController.swift */; };
@@ -67,6 +68,7 @@
 		CE2E670A2D806D9700DF27D7 /* TrackerPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerPresenter.swift; sourceTree = "<group>"; };
 		CE2E670D2D81A5B600DF27D7 /* TrackerCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerCollectionViewCell.swift; sourceTree = "<group>"; };
 		CE2E67112D81C7F300DF27D7 /* CategoryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryViewController.swift; sourceTree = "<group>"; };
+		CE2E67132D81E87E00DF27D7 /* TrackerSupplementaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerSupplementaryView.swift; sourceTree = "<group>"; };
 		CEEF7AE42D6DEEE40047305A /* Tracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Tracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CEEF7AE72D6DEEE40047305A /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		CEEF7AE92D6DEEE40047305A /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -159,6 +161,7 @@
 			isa = PBXGroup;
 			children = (
 				CEEF7B1C2D6E3E570047305A /* TrackerViewController.swift */,
+				CE2E67132D81E87E00DF27D7 /* TrackerSupplementaryView.swift */,
 				CE2E670A2D806D9700DF27D7 /* TrackerPresenter.swift */,
 				CE2E670D2D81A5B600DF27D7 /* TrackerCollectionViewCell.swift */,
 			);
@@ -383,6 +386,7 @@
 				CEEF7B722D71DE450047305A /* TrackerRecord.swift in Sources */,
 				CEEF7AEC2D6DEEE40047305A /* ViewController.swift in Sources */,
 				CE2E670B2D806D9700DF27D7 /* TrackerPresenter.swift in Sources */,
+				CE2E67142D81E87E00DF27D7 /* TrackerSupplementaryView.swift in Sources */,
 				CE2E66F72D7B4F4800DF27D7 /* TextFieldCell.swift in Sources */,
 				CEEF7B702D71DE020047305A /* TrackerCategory.swift in Sources */,
 				CEEF7B762D7884FD0047305A /* HabitCreatingViewController.swift in Sources */,
