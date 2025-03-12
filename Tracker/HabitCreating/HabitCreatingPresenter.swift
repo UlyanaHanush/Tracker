@@ -9,8 +9,16 @@ import Foundation
 
 protocol HabitCreatingPresenterProtocol {
     var view: HabitCreatingViewControllerProtocol? { get }
+    
     var trackerType: TrackerType { get set }
+    
+    var trackerName: String? { get set }
+    var selectedCategory: TrackerCategory? { get }
     var schedule: [Int] { get set }
+    
+    func isValidForm() -> Bool
+    
+    func createNewTracker()
 }
 
 final class HabitCreatingPresenter: HabitCreatingPresenterProtocol {
@@ -21,8 +29,37 @@ final class HabitCreatingPresenter: HabitCreatingPresenterProtocol {
     var trackerType: TrackerType
     var delegate: HabitCreatingDelegate?
     var schedule: [Int] = []
+    var trackerName: String?
     
-    init(trackerType: TrackerType) {
+    var selectedCategory: TrackerCategory?
+    let category = [TrackerCategory(title: "good", trackers: [Tracker(id: UUID(), name: "", color: .black, emoji: "🌺", schedule: [1,2])])]
+    
+    var categories: [TrackerCategory]
+    
+    
+    
+    init(trackerType: TrackerType, categories: [TrackerCategory]) {
         self.trackerType = trackerType
+        self.categories = categories
+        self.selectedCategory = category.first
+    }
+    
+    func isValidForm() -> Bool {
+        switch trackerType {
+        case .Habit:
+            return selectedCategory != nil && trackerName != nil && !schedule.isEmpty
+        case .UnRegularEvent:
+            return selectedCategory != nil && trackerName != nil
+        }
+    }
+    
+    func createNewTracker() {
+        guard let name = trackerName,
+              let selectedCategory
+        else { return }
+        
+        let newTracker = Tracker(id: UUID(), name: name, color: .red, emoji: "🌺", schedule: schedule)
+                
+        delegate?.didCreateTracker(newTracker, at: selectedCategory)
     }
 }

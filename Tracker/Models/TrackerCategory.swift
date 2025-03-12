@@ -8,6 +8,6 @@
 import Foundation
 
 struct TrackerCategory {
-    let titel: String
-    let trackers: [Tracker]
+    let title: String
+    var trackers: [Tracker]
 }

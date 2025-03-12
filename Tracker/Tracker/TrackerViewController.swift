@@ -13,10 +13,17 @@ protocol HabitCreatingDelegate {
     func didCreateTracker(_ tracker: Tracker, at category: TrackerCategory)
 }
 
+protocol TrackersViewControllerProtocol: AnyObject {
+    var presenter: TrackersPresenter? { get }
+}
+
 import UIKit
 
-final class TrackerViewController: UIViewController, UISearchBarDelegate, TrackerTypeDelegate, HabitCreatingDelegate {
-
+final class TrackerViewController: UIViewController, UISearchBarDelegate, TrackerTypeDelegate, HabitCreatingDelegate, TrackersViewControllerProtocol {
+    
+    // MARK: - Publike Properties
+    
+    var presenter: TrackersPresenter?
     var categories: [TrackerCategory] = []
     var completedTrackers: [TrackerRecord] = []
     
@@ -56,9 +63,15 @@ final class TrackerViewController: UIViewController, UISearchBarDelegate, Tracke
         return label
     }()
     
-    private lazy var collectionView:  UICollectionView = {
+    private lazy var trackersCollectionView:  UICollectionView = {
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
-        collectionView.register(UICollectionViewCell.self, forCellWithReuseIdentifier: "cell")
+        collectionView.backgroundColor = .white
+        collectionView.register(TrackerCollectionViewCell.self, forCellWithReuseIdentifier: TrackerCollectionViewCell.cellIdentifier)
+        
+        collectionView.dataSource = self
+        collectionView.delegate = self
+        
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
         return collectionView
     }()
     
@@ -76,11 +89,13 @@ final class TrackerViewController: UIViewController, UISearchBarDelegate, Tracke
         showHabitCreatingScreen(type)
     }
     
-    // MARK: - NewHabitDelegate
+    // MARK: - HabitCreatingDelegate 
     
     func didCreateTracker(_ tracker: Tracker, at category: TrackerCategory) {
-//        presenter?.addTracker(tracker, at: category)
-//        trackersCollectionView.reloadData()
+        presenter?.addTracker(tracker, at: category)
+        print(tracker)
+        print(category)
+        trackersCollectionView.reloadData()
     }
     
     // MARK: - IBAction
@@ -105,11 +120,18 @@ final class TrackerViewController: UIViewController, UISearchBarDelegate, Tracke
             
             // emptyTrackerText Constraints
             emptyTrackerText.topAnchor.constraint(equalTo: emptyTrackerImage.bottomAnchor, constant: 8),
-            emptyTrackerText.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor)
+            emptyTrackerText.centerXAnchor.constraint(equalTo: view.safeAreaLayoutGuide.centerXAnchor),
+            
+            // trackersCollectionView Constraints
+            trackersCollectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
+            trackersCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
+            trackersCollectionView.leftAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leftAnchor),
+            trackersCollectionView.rightAnchor.constraint(equalTo: view.safeAreaLayoutGuide.rightAnchor)
         ])
     }
     
     private func addSubviews() {
+        view.addSubview(trackersCollectionView)
         view.addSubview(emptyTrackerImage)
         view.addSubview(emptyTrackerText)
         view.backgroundColor = .white
@@ -149,7 +171,7 @@ final class TrackerViewController: UIViewController, UISearchBarDelegate, Tracke
     
     private func showHabitCreatingScreen(_ type: TrackerType) {
         let habitCreatingViewController = HabitCreatingViewController()
-        let habitCreatingPresenter = HabitCreatingPresenter(trackerType: type)
+        let habitCreatingPresenter = HabitCreatingPresenter(trackerType: type, categories: presenter?.categories ?? [])
         habitCreatingViewController.presenter = habitCreatingPresenter
         habitCreatingPresenter.view = habitCreatingViewController
         habitCreatingPresenter.delegate = self
@@ -157,4 +179,63 @@ final class TrackerViewController: UIViewController, UISearchBarDelegate, Tracke
         let navigatorController = UINavigationController(rootViewController: habitCreatingViewController)
         present(navigatorController, animated: true, completion: nil)
     }
+    
+    private func setupEmptyScreen() {
+        emptyTrackerImage.isHidden = presenter?.categories.count ?? 0 > 0
+        emptyTrackerText.isHidden = presenter?.categories.count ?? 0 > 0
+        trackersCollectionView.isHidden = presenter?.categories.count == 0
+    }
+}
+
+extension TrackerViewController: UICollectionViewDataSource {
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
+        return presenter?.categories.count ?? 0
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return presenter?.categories[section].trackers.count ?? 0
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: TrackerCollectionViewCell.cellIdentifier, for: indexPath) as? TrackerCollectionViewCell else { return UICollectionViewCell() }
+        
+        if let tracker = presenter?.categories[indexPath.section].trackers[indexPath.row] {
+            cell.nameLabel.text = tracker.name
+            cell.emojiLabel.text = tracker.emoji
+            cell.cardView.backgroundColor = tracker.color
+            cell.plusButton.backgroundColor = tracker.color
+        }
+
+        //cell.delegate = self
+
+        return cell
+    }
+}
+
+extension TrackerViewController: UICollectionViewDelegateFlowLayout {
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        return CGSize(width: (collectionView.bounds.width - Contstants.contentInsets * 2 - Contstants.spacing) / 2 , height: 148)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
+        
+        return Contstants.spacing
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
+        
+        return CGSize(width: collectionView.frame.width, height: 30)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
+        
+        return UIEdgeInsets(top: 10, left: 0, bottom: 16, right: 0)
+    }
+}
+
+enum Contstants {
+    static let cellIdentifier = "TrackerCell"
+    static let contentInsets: CGFloat = 16
+    static let spacing: CGFloat = 9
 }

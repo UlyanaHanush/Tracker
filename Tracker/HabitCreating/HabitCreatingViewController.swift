@@ -15,7 +15,7 @@ protocol HabitCreatingViewControllerProtocol {
     var presenter: HabitCreatingPresenterProtocol? { get }
 }
 
-final class HabitCreatingViewController: UIViewController, HabitCreatingViewControllerProtocol,  ScheduleDelegate {
+final class HabitCreatingViewController: UIViewController, HabitCreatingViewControllerProtocol,  ScheduleDelegate, TextFieldCellDelegate {
     
     // MARK: - Publike Properties
     
@@ -72,6 +72,7 @@ final class HabitCreatingViewController: UIViewController, HabitCreatingViewCont
         tableView.isScrollEnabled = false
         tableView.separatorStyle = .singleLine
         tableView.allowsSelection = true
+        tableView.contentInsetAdjustmentBehavior = .never
         
         tableView.register(TextFieldCell.self, forCellReuseIdentifier: TextFieldCell.reuseIdentifier)
         tableView.register(TableViewCell.self, forCellReuseIdentifier: TableViewCell.reuseIdentifier)
@@ -92,17 +93,25 @@ final class HabitCreatingViewController: UIViewController, HabitCreatingViewCont
         addSubviews()
     }
     
-    // MARK: - TimetableDelegate
-       
+    // MARK: - ScheduleDelegate
+    
     func didSelect(weekdays: [Int]) {
         presenter?.schedule = weekdays
-//        updateButtonState()
-//        tableView.reloadData()
+        updateButtonState()
+    }
+    
+    // MARK: - TextFieldCellDelegate
+    
+    func didTextChange(text: String?) {
+        presenter?.trackerName = text
+        updateButtonState()
     }
     
     // MARK: - IBAction
     
     @IBAction private func didCreateButton(_ sender: Any) {
+        presenter?.createNewTracker()
+        dismiss(animated: true)
     }
     
     @IBAction private func didCancelButton(_ sender: Any) {
@@ -133,12 +142,16 @@ final class HabitCreatingViewController: UIViewController, HabitCreatingViewCont
     }
     
     private func addSubviews() {
+        self.hideKeyboardOnTap()
+        
         view.addSubview(buttonsStackView)
         view.addSubview(planningTableView)
         
         setupConstraints()
         setupNavigationBar()
         view.backgroundColor = .white
+        
+        updateButtonState()
     }
     
     private func rowsForSection(_ type: Section) -> [Section.Row] {
@@ -168,6 +181,11 @@ final class HabitCreatingViewController: UIViewController, HabitCreatingViewCont
     
     private func showCategoryScreen() {
         
+    }
+    
+    private func updateButtonState() {
+        createButton.isEnabled = presenter?.isValidForm() ?? false
+        createButton.backgroundColor = createButton.isEnabled ? .black : .tGray
     }
 }
 
@@ -208,6 +226,7 @@ extension HabitCreatingViewController: UITableViewDataSource {
             guard let cell = tableView.dequeueReusableCell(withIdentifier: TextFieldCell.reuseIdentifier) as? TextFieldCell else {
                 return UITableViewCell()
             }
+            cell.delegate = self
             return cell
             
         case .category:
@@ -225,3 +244,16 @@ extension HabitCreatingViewController: UITableViewDataSource {
     }
 }
 
+extension UIViewController {
+    
+    func hideKeyboardOnTap() {
+        let tap = UITapGestureRecognizer(target: self, action: #selector(UIViewController.dismissKeyboard))
+        tap.cancelsTouchesInView = false
+        view.addGestureRecognizer(tap)
+    }
+    
+    @objc
+    private func dismissKeyboard() {
+        view.endEditing(true)
+    }
+}

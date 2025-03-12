@@ -23,6 +23,10 @@ final class TabBarController: UITabBarController {
     
     private func setupTabBar() {
         let trackerViewController = TrackerViewController()
+        let trackersPresenter = TrackersPresenter()
+        trackersPresenter.view = trackerViewController
+        trackerViewController.presenter = trackersPresenter
+        
         let trackers = UINavigationController(rootViewController: trackerViewController )
         trackers.tabBarItem = UITabBarItem(title: "Трекеры", image: UIImage(systemName: "record.circle.fill"), selectedImage: nil)
         
