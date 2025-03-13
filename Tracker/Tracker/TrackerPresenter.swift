@@ -10,7 +10,7 @@ import Foundation
 protocol TrackersPresenterProtocol {
     var view: TrackersViewControllerProtocol? { get }
     var categories: [TrackerCategory] { get }
-    var completedTrackers: [TrackerRecord] { get set }
+    var completedTrackers: Set<TrackerRecord> { get set }
     func addTracker(_ tracker: Tracker, at category: TrackerCategory)
 }
 
@@ -18,9 +18,10 @@ final class TrackersPresenter: TrackersPresenterProtocol {
     
     // MARK: - Publike Properties
     
-    var completedTrackers: [TrackerRecord] = []
-    
     var view: TrackersViewControllerProtocol?
+    var completedTrackers: Set<TrackerRecord> = []
+    var categories: [TrackerCategory] = []
+    
     var search: String = "" {
         didSet {
             updateCategories()
@@ -31,7 +32,6 @@ final class TrackersPresenter: TrackersPresenterProtocol {
             updateCategories()
         }
     }
-    var categories: [TrackerCategory] = []
     
     init() {
         let tracker = Tracker(id: UUID(), name: "Поливать растения", color: .red, emoji: "❤️", schedule: [2])
@@ -71,36 +71,37 @@ final class TrackersPresenter: TrackersPresenterProtocol {
        return result
    }
     
-    func completeTracker(_ complete: Bool, tracker: Tracker) {
-         if complete {
-             addToCompletedTrackers(tracker: tracker, date: currentDate)
-         } else {
-             removeFromCompletedTrackers(tracker: tracker, date: currentDate)
-         }
-     }
-    
-    func addToCompletedTrackers(tracker: Tracker, date: Date) {
-        var completedTrackers = self.completedTrackers
-        let trackerToRecord = TrackerRecord(id: tracker.id, date: date)
-        completedTrackers.append(trackerToRecord)
-        self.completedTrackers = completedTrackers
-        
+    func completeTracker(_ tracker: Tracker, date: Date) {
+        if isTrackerCompleted(tracker, date: date) {
+            removeFromCompletedTrackers(tracker: tracker, date: currentDate)
+        } else {
+            addToCompletedTrackers(tracker: tracker, date: currentDate)
+        }
     }
     
-    func removeFromCompletedTrackers(tracker: Tracker, date: Date) {
-        var completedTrackers = self.completedTrackers
-        let trackerToRemove = TrackerRecord(id: tracker.id, date: date)
-        guard let index = completedTrackers.firstIndex(where: {$0.id == trackerToRemove.id}) else { return }
-        completedTrackers.remove(at: index)
-        self.completedTrackers = completedTrackers
-    }
-    
-    func isCompletedTracker(_ tracker: Tracker) -> Bool {
-        completedTrackers.first(where: { $0.id == tracker.id && $0.date == currentDate }) != nil
-    }
-    
-    func countRecordsTracker(_ tracker: Tracker) -> Int {
+    func countCompletedDays(for tracker: Tracker) -> Int {
         completedTrackers.filter({ $0.id == tracker.id }).count
+    }
+    
+    func isTrackerCompleted(_ tracker: Tracker, date: Date) -> Bool {
+        let trackerRecord = TrackerRecord(id: tracker.id, date: date)
+        return completedTrackers.contains(trackerRecord)
+    }
+    
+    // MARK: - Private Methods
+    
+    private func addToCompletedTrackers(tracker: Tracker, date: Date) {
+        let trackerRecord = TrackerRecord(id: tracker.id, date: date)
+        completedTrackers.insert(trackerRecord )
+        print("\(#file):\(#line)] \(#function) Добавлен трекер: \(tracker.name) на дату: \(date)")
+        //collectionView.reloadData()
+    }
+    
+    private func removeFromCompletedTrackers(tracker: Tracker, date: Date) {
+        let trackerRecord = TrackerRecord(id: tracker.id, date: date)
+        completedTrackers.remove(trackerRecord)
+        print("\(#file):\(#line)] \(#function) Удален трекер: \(tracker.name) с даты: \(date)")
+        //collectionView.reloadData()
     }
 }
 

@@ -16,28 +16,18 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
     // MARK: - Publike Properties
     
     var delegate: TrackerCollectionViewCellDelegate?
-    var daysCounter: Int = 0 {
-        didSet {
-            updateCounterLabel()
-        }
-    }
-    
-    var completedTracker: Bool = false {
-        didSet {
-            updateButtonState()
-        }
-    }
+    var completedDaysCount: Int = 0
+    var isCompleted: Bool = false
+    var currentDate: Date?
     
     var tracker: Tracker? {
         didSet {
             nameLabel.text = tracker?.name
             emojiLabel.text = tracker?.emoji
             cardView.backgroundColor = tracker?.color
-            plusButton.backgroundColor = tracker?.color
+            plusCompletedButton.backgroundColor = tracker?.color
         }
     }
-    
-    // MARK: - Private Properties
     
     lazy var cardView: UIView = {
         let card = UIView()
@@ -78,38 +68,35 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         return emoji
     }()
     
-    lazy var daysLabel: UILabel = {
+    lazy var counterLabel: UILabel = {
         let days = UILabel()
-        
-        days.text = "4 дня"
-        
         days.translatesAutoresizingMaskIntoConstraints = false
         days.font = .systemFont(ofSize: 12, weight: .medium)
         return days
     }()
     
-    lazy var plusButton: UIButton = {
-        
+    lazy var plusCompletedButton: UIButton = {
         let plus = UIButton()
+        
         let image = UIImage(systemName: "plus")
-
         plus.setImage(image, for: .normal)
         
         plus.backgroundColor = .red
-        
         plus.tintColor = .white
         plus.layer.cornerRadius = 20
-        plus.addTarget(nil, action: #selector(checkForToday), for: .touchUpInside)
+        
+        plus.addTarget(nil, action: #selector(plusCompleteButtonTapped), for: .touchUpInside)
         
         plus.translatesAutoresizingMaskIntoConstraints = false
         return plus
     }()
     
+    // MARK: - Initializers
+    
     override init(frame: CGRect) {
         super.init(frame: frame)
         
         addSubviews()
-        updateButtonState()
     }
     
     required init?(coder: NSCoder) {
@@ -119,15 +106,21 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
     
     // MARK: - IBAction
     
-    @IBAction private func checkForToday() {
-        if completedTracker {
-            daysCounter -= 1
-        } else {
-            daysCounter += 1
+    @IBAction private func plusCompleteButtonTapped() {
+        guard let tracker = self.tracker,
+              let currentDate = self.currentDate else { return }
+        
+        if isFutureDate(currentDate) {
+            print("\(#file):\(#line)] \(#function) Нельзя отметить трекер на будущую дату")
+            return
         }
-        completedTracker = !completedTracker
-        guard let tracker else { return }
-        delegate?.didComplete(completedTracker, tracker: tracker)
+        
+        isCompleted.toggle()
+        completedDaysCount += isCompleted ? 1 : -1
+        counterLabel.text = "\(completedDaysCount) дней"
+        setCompletedState(isCompleted)
+
+        delegate?.didComplete(tracker, date: currentDate)
     }
     
     // MARK: - Private Methods
@@ -149,13 +142,13 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
             emojiLabel.topAnchor.constraint(equalTo: cardView.topAnchor, constant: 12),
             emojiLabel.leadingAnchor.constraint(equalTo: cardView.leadingAnchor, constant: 12),
                
-            daysLabel.topAnchor.constraint(equalTo: cardView.bottomAnchor, constant: 16),
-            daysLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 12),
+            counterLabel.topAnchor.constraint(equalTo: cardView.bottomAnchor, constant: 16),
+            counterLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 12),
                
-            plusButton.topAnchor.constraint(equalTo: cardView.bottomAnchor, constant: 8),
-            plusButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-            plusButton.heightAnchor.constraint(equalToConstant: 34),
-            plusButton.widthAnchor.constraint(equalToConstant: 34)
+            plusCompletedButton.topAnchor.constraint(equalTo: cardView.bottomAnchor, constant: 8),
+            plusCompletedButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
+            plusCompletedButton.heightAnchor.constraint(equalToConstant: 34),
+            plusCompletedButton.widthAnchor.constraint(equalToConstant: 34)
            ])
        }
     
@@ -163,27 +156,28 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         contentView.addSubview(cardView)
         cardView.addSubview(nameLabel)
         cardView.addSubview(emojiLabel)
-        contentView.addSubview(daysLabel)
-        contentView.addSubview(plusButton)
+        contentView.addSubview(counterLabel)
+        contentView.addSubview(plusCompletedButton)
         
         constraintSubviews()
+        setCompletedState(isCompleted)
     }
-    
-    private func updateButtonState() {
-         switch completedTracker {
-         case true:
-             plusButton.setImage(UIImage(named: "Checkmark"), for: .normal)
-             plusButton.alpha = 0.3
-             plusButton.imageView?.tintColor = .white
-         case false:
-             plusButton.setImage(UIImage(systemName: "plus"), for: .normal)
-             plusButton.alpha = 1
-             plusButton.imageView?.tintColor = .white
-         }
-     }
      
      private func updateCounterLabel() {
-         let daysLabelForCell = "\(daysCounter) дней"
-         daysLabel.text = daysLabelForCell
+         let daysLabelForCell = "\(completedDaysCount) дней"
+         counterLabel.text = daysLabelForCell
      }
+    
+    private func isFutureDate(_ date: Date) -> Bool {
+        let calendar = Calendar.current
+        let today = calendar.startOfDay(for: Date())
+        let selectedDate = calendar.startOfDay(for: date)
+        return selectedDate > today
+    }
+    
+    private func setCompletedState(_ isCompleted: Bool) {
+        let doneImage = isCompleted ? UIImage(named: "done") : UIImage(systemName: "plus")
+        plusCompletedButton.setImage(doneImage, for: .normal)
+        plusCompletedButton.alpha = isCompleted ? 0.3 : 1.0
+    }
 }

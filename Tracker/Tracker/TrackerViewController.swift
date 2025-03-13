@@ -18,7 +18,7 @@ protocol TrackersViewControllerProtocol: AnyObject {
 }
 
 protocol TrackerCollectionViewCellDelegate: AnyObject {
-    func didComplete(_ complete: Bool,  tracker: Tracker)
+    func didComplete(_ tracker: Tracker, date: Date)
 }
 
 import UIKit
@@ -109,8 +109,8 @@ final class TrackerViewController: UIViewController, TrackerTypeDelegate, HabitC
     
     // MARK: - TrackerCollectionViewCellDelegate
     
-    func didComplete(_ complete: Bool, tracker: Tracker) {
-        presenter?.completeTracker(complete, tracker: tracker)
+    func didComplete(_ tracker: Tracker, date: Date) {
+        presenter?.completeTracker(tracker, date: date)
     }
     
     // MARK: - IBAction
@@ -219,8 +219,10 @@ extension TrackerViewController: UICollectionViewDataSource {
             let tracker = presenter.categories[indexPath.section].trackers[indexPath.row]
             cell.delegate = self
             cell.tracker = tracker
-            cell.completedTracker = presenter.isCompletedTracker(tracker)
-            cell.daysCounter = presenter.countRecordsTracker(tracker)
+            cell.currentDate = presenter.currentDate
+            cell.isCompleted = presenter.isTrackerCompleted(tracker, date: presenter.currentDate)
+            print(presenter.countCompletedDays(for:tracker))
+            cell.completedDaysCount = presenter.countCompletedDays(for:tracker)
         }
         return cell
     }
