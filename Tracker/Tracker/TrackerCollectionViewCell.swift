@@ -13,6 +13,30 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
     
     static let cellIdentifier = "TrackerCollectionViewCell"
     
+    // MARK: - Publike Properties
+    
+    var delegate: TrackerCollectionViewCellDelegate?
+    var daysCounter: Int = 0 {
+        didSet {
+            updateCounterLabel()
+        }
+    }
+    
+    var completedTracker: Bool = false {
+        didSet {
+            updateButtonState()
+        }
+    }
+    
+    var tracker: Tracker? {
+        didSet {
+            nameLabel.text = tracker?.name
+            emojiLabel.text = tracker?.emoji
+            cardView.backgroundColor = tracker?.color
+            plusButton.backgroundColor = tracker?.color
+        }
+    }
+    
     // MARK: - Private Properties
     
     lazy var cardView: UIView = {
@@ -85,6 +109,7 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         super.init(frame: frame)
         
         addSubviews()
+        updateButtonState()
     }
     
     required init?(coder: NSCoder) {
@@ -95,7 +120,14 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
     // MARK: - IBAction
     
     @IBAction private func checkForToday() {
-        
+        if completedTracker {
+            daysCounter -= 1
+        } else {
+            daysCounter += 1
+        }
+        completedTracker = !completedTracker
+        guard let tracker else { return }
+        delegate?.didComplete(completedTracker, tracker: tracker)
     }
     
     // MARK: - Private Methods
@@ -122,8 +154,6 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
                
             plusButton.topAnchor.constraint(equalTo: cardView.bottomAnchor, constant: 8),
             plusButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-            //daysLabel.trailingAnchor.constraint(greaterThanOrEqualTo: plusButton.leadingAnchor, constant: 4),
-            //plusButton.centerYAnchor.constraint(equalTo: daysLabel.centerYAnchor),
             plusButton.heightAnchor.constraint(equalToConstant: 34),
             plusButton.widthAnchor.constraint(equalToConstant: 34)
            ])
@@ -138,4 +168,22 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         
         constraintSubviews()
     }
+    
+    private func updateButtonState() {
+         switch completedTracker {
+         case true:
+             plusButton.setImage(UIImage(named: "Checkmark"), for: .normal)
+             plusButton.alpha = 0.3
+             plusButton.imageView?.tintColor = .white
+         case false:
+             plusButton.setImage(UIImage(systemName: "plus"), for: .normal)
+             plusButton.alpha = 1
+             plusButton.imageView?.tintColor = .white
+         }
+     }
+     
+     private func updateCounterLabel() {
+         let daysLabelForCell = "\(daysCounter) дней"
+         daysLabel.text = daysLabelForCell
+     }
 }

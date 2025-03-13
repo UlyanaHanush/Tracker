@@ -32,8 +32,7 @@ final class HabitCreatingPresenter: HabitCreatingPresenterProtocol {
     var trackerName: String?
     
     var selectedCategory: TrackerCategory?
-    let category = TrackerCategory(title: "good", trackers: [Tracker(id: UUID(), name: "", color: .black, emoji: "🌺", schedule: [1,2])])
-    
+ 
     var categories: [TrackerCategory]
     
     
@@ -41,7 +40,7 @@ final class HabitCreatingPresenter: HabitCreatingPresenterProtocol {
     init(trackerType: TrackerType, categories: [TrackerCategory]) {
         self.trackerType = trackerType
         self.categories = categories
-        self.selectedCategory = category
+        self.selectedCategory = categories.first
     }
     
     func isValidForm() -> Bool {
@@ -54,12 +53,10 @@ final class HabitCreatingPresenter: HabitCreatingPresenterProtocol {
     }
     
     func createNewTracker() {
-        guard let name = trackerName,
-              let selectedCategory
-        else { return }
+        guard let name = trackerName, let selectedCategory else { return }
         
         let newTracker = Tracker(id: UUID(), name: name, color: .red, emoji: "🌺", schedule: schedule)
-                
+    
         delegate?.didCreateTracker(newTracker, at: selectedCategory)
     }
 }

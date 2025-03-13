@@ -17,15 +17,19 @@ protocol TrackersViewControllerProtocol: AnyObject {
     var presenter: TrackersPresenter? { get }
 }
 
+protocol TrackerCollectionViewCellDelegate: AnyObject {
+    func didComplete(_ complete: Bool,  tracker: Tracker)
+}
+
 import UIKit
 
-final class TrackerViewController: UIViewController, UISearchBarDelegate, TrackerTypeDelegate, HabitCreatingDelegate, TrackersViewControllerProtocol {
+final class TrackerViewController: UIViewController, TrackerTypeDelegate, HabitCreatingDelegate, TrackersViewControllerProtocol, TrackerCollectionViewCellDelegate {
     
     // MARK: - Publike Properties
     
     var presenter: TrackersPresenter?
-    var categories: [TrackerCategory] = []
-    var completedTrackers: [TrackerRecord] = []
+//    var categories: [TrackerCategory] = []
+//    var completedTrackers: [TrackerRecord] = []
     
     // MARK: - Private Properties
     
@@ -64,7 +68,11 @@ final class TrackerViewController: UIViewController, UISearchBarDelegate, Tracke
     }()
     
     private lazy var trackersCollectionView:  UICollectionView = {
-        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: UICollectionViewFlowLayout())
+        let layout = UICollectionViewFlowLayout()
+        layout.scrollDirection = .vertical
+        //layout.headerReferenceSize = CGSize(width: UIScreen.main.bounds.width, height: 50)
+        
+        let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.backgroundColor = .white
         collectionView.contentInset = UIEdgeInsets(top: 24, left: 16, bottom: 24, right: 16)
         collectionView.register(TrackerCollectionViewCell.self, forCellWithReuseIdentifier: TrackerCollectionViewCell.cellIdentifier)
@@ -83,6 +91,7 @@ final class TrackerViewController: UIViewController, UISearchBarDelegate, Tracke
         super.viewDidLoad()
     
         addSubviews()
+        presenter?.updateCategories()
     }
     
     // MARK: - Publike Methods
@@ -98,6 +107,12 @@ final class TrackerViewController: UIViewController, UISearchBarDelegate, Tracke
         trackersCollectionView.reloadData()
     }
     
+    // MARK: - TrackerCollectionViewCellDelegate
+    
+    func didComplete(_ complete: Bool, tracker: Tracker) {
+        presenter?.completeTracker(complete, tracker: tracker)
+    }
+    
     // MARK: - IBAction
     
     @IBAction private func didTapAddButton(_ sender: Any) {
@@ -105,9 +120,10 @@ final class TrackerViewController: UIViewController, UISearchBarDelegate, Tracke
     }
     
     @IBAction private func datePickerValueChanged(_ sender: UIDatePicker) {
-        let selectedDate = sender.date
-        let formattedDate = dateFormatter.string(from: selectedDate)
-        print("Выбранная дата: \(formattedDate)")
+        presenter?.currentDate = sender.date
+        trackersCollectionView.reloadData()
+//        let formattedDate = dateFormatter.string(from: selectedDate)
+//        print("Выбранная дата: \(formattedDate)")
     }
     
     // MARK: - Private Methods
@@ -131,10 +147,11 @@ final class TrackerViewController: UIViewController, UISearchBarDelegate, Tracke
     }
     
     private func addSubviews() {
-        view.addSubview(trackersCollectionView)
+        //view.addSubview(trackersCollectionView)
         view.addSubview(emptyTrackerImage)
         view.addSubview(emptyTrackerText)
         view.backgroundColor = .white
+        view.addSubview(trackersCollectionView)
 
         setupConstraints()
         setupNavigationBar()
@@ -198,17 +215,20 @@ extension TrackerViewController: UICollectionViewDataSource {
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: TrackerCollectionViewCell.cellIdentifier, for: indexPath) as? TrackerCollectionViewCell else { return UICollectionViewCell() }
-        
-        if let tracker = presenter?.categories[indexPath.section].trackers[indexPath.row] {
-            cell.nameLabel.text = tracker.name
-            cell.emojiLabel.text = tracker.emoji
-            cell.cardView.backgroundColor = tracker.color
-            cell.plusButton.backgroundColor = tracker.color
+        if let presenter {
+            let tracker = presenter.categories[indexPath.section].trackers[indexPath.row]
+            cell.delegate = self
+            cell.tracker = tracker
+            cell.completedTracker = presenter.isCompletedTracker(tracker)
+            cell.daysCounter = presenter.countRecordsTracker(tracker)
         }
-
-        //cell.delegate = self
-
         return cell
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
+        guard let view = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: TrackerSupplementaryView.supplementaryIdentifier, for: indexPath) as? TrackerSupplementaryView else { return UICollectionReusableView() }
+        view.title.text = presenter?.categories[indexPath.section].title
+        return view
     }
 }
 
@@ -237,10 +257,56 @@ extension TrackerViewController: UICollectionViewDelegateFlowLayout {
 }
 
 extension TrackerViewController: UICollectionViewDelegate {
+
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        print("\(#file):\(#line)] \(#function) Выделена ячейка: \(indexPath.item)")
+    }
     
-    func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        guard let view = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: TrackerSupplementaryView.supplementaryIdentifier, for: indexPath) as? TrackerSupplementaryView else { return UICollectionReusableView() }
-        view.title.text = presenter?.categories[indexPath.section].title
-        return view
+    func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
+        return UIContextMenuConfiguration(identifier: nil, previewProvider: nil) { [weak self] suggestedActions in
+            let pinAction = UIAction(title: "Закрепить", image: UIImage(systemName: "pin")) { _ in
+                print("\(#file):\(#line)] \(#function) Закрепить трекер")
+            }
+            
+            let editAction = UIAction(title: "Редактировать", image: UIImage(systemName: "pencil")) { _ in
+                print("\(#file):\(#line)] \(#function) Редактировать трекер")
+            }
+            
+            let deleteAction = UIAction(
+                title: "Удалить",
+                image: UIImage(systemName: "trash"),
+                attributes: .destructive
+            ) { [weak self] _ in
+                guard let self = self else { return }
+                let alert = UIAlertController(
+                    title: "Удалить трекер?",
+                    message: "Эта операция не может быть отменена",
+                    preferredStyle: .alert
+                )
+                alert.addAction(UIAlertAction(title: "Отменить", style: .cancel))
+                alert.addAction(UIAlertAction(title: "Удалить", style: .destructive) { _ in
+                    print("deleteTracker")
+                    //self?.deleteTracker(at: indexPath)
+                })
+                self.present(alert, animated: true)
+            }
+            return UIMenu(title: "", children: [pinAction, editAction, deleteAction])
+        }
+    }
+        
+    func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
+        print("\(#file):\(#line)] \(#function) Снято выделение с ячейки: \(indexPath.item)")
+    }
+}
+
+extension TrackerViewController: UISearchBarDelegate {
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        presenter?.search = searchText
+        trackersCollectionView.reloadData()
+    }
+    
+    func searchBarCancelButtonClicked(_ searchBar: UISearchBar) {
+        presenter?.search = ""
+        trackersCollectionView.reloadData()
     }
 }
