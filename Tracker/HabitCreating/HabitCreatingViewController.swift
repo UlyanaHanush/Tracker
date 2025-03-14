@@ -8,7 +8,7 @@
 import UIKit
 
 protocol ScheduleDelegate {
-    func didSelect(weekdays: [Int])
+    func didSelect(weekdays: [WeekDay])
 }
 
 protocol HabitCreatingViewControllerProtocol {
@@ -95,7 +95,7 @@ final class HabitCreatingViewController: UIViewController, HabitCreatingViewCont
     
     // MARK: - ScheduleDelegate
     
-    func didSelect(weekdays: [Int]) {
+    func didSelect(weekdays: [WeekDay]) {
         presenter?.schedule = weekdays
         updateButtonState()
     }

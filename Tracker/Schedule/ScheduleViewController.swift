@@ -71,9 +71,10 @@ final class ScheduleViewController: UIViewController, ScheduleViewControllerProt
     @IBAction private func didChangeSwitch(_ sender: UISwitch) {
         guard var presenter else { return }
         
+        guard let day = WeekDay(rawValue: sender.tag) else { return }
         if sender.isOn {
-            presenter.selectedWeekdays.append(sender.tag)
-        } else if let index = presenter.selectedWeekdays.firstIndex(of: sender.tag) {
+            presenter.selectedWeekdays.append(day)
+        } else if let index = presenter.selectedWeekdays.firstIndex(of: day) {
             presenter.selectedWeekdays.remove(at: index)
         }
     }
@@ -137,8 +138,9 @@ extension ScheduleViewController: UITableViewDataSource {
         cell.accessoryType = .disclosureIndicator
         
         let weekdaySwitch = UISwitch()
+    
         if let selected = presenter?.selectedWeekdays {
-            weekdaySwitch.isOn = selected.contains(indexPath.row)
+            weekdaySwitch.isOn = selected.contains(WeekDay(rawValue: indexPath.row) ?? .monday)
         }
         cell.accessoryView = weekdaySwitch
         weekdaySwitch.onTintColor = .tBlue

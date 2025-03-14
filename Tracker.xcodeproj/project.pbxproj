@@ -19,6 +19,7 @@
 		CE2E670E2D81A5B600DF27D7 /* TrackerCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE2E670D2D81A5B600DF27D7 /* TrackerCollectionViewCell.swift */; };
 		CE2E67122D81C7F300DF27D7 /* CategoryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE2E67112D81C7F300DF27D7 /* CategoryViewController.swift */; };
 		CE2E67142D81E87E00DF27D7 /* TrackerSupplementaryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE2E67132D81E87E00DF27D7 /* TrackerSupplementaryView.swift */; };
+		CE2E67162D84A34900DF27D7 /* FormatterDay.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE2E67152D84A34900DF27D7 /* FormatterDay.swift */; };
 		CEEF7AE82D6DEEE40047305A /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEEF7AE72D6DEEE40047305A /* AppDelegate.swift */; };
 		CEEF7AEA2D6DEEE40047305A /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEEF7AE92D6DEEE40047305A /* SceneDelegate.swift */; };
 		CEEF7AEC2D6DEEE40047305A /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEEF7AEB2D6DEEE40047305A /* ViewController.swift */; };
@@ -69,6 +70,7 @@
 		CE2E670D2D81A5B600DF27D7 /* TrackerCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerCollectionViewCell.swift; sourceTree = "<group>"; };
 		CE2E67112D81C7F300DF27D7 /* CategoryViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryViewController.swift; sourceTree = "<group>"; };
 		CE2E67132D81E87E00DF27D7 /* TrackerSupplementaryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerSupplementaryView.swift; sourceTree = "<group>"; };
+		CE2E67152D84A34900DF27D7 /* FormatterDay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FormatterDay.swift; sourceTree = "<group>"; };
 		CEEF7AE42D6DEEE40047305A /* Tracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Tracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		CEEF7AE72D6DEEE40047305A /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		CEEF7AE92D6DEEE40047305A /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -214,6 +216,7 @@
 				CEEF7B1E2D6E3E870047305A /* StatisticsViewController.swift */,
 				CEEF7AF02D6DEEE40047305A /* Tracker.xcdatamodeld */,
 				CEEF7B6A2D71CEBB0047305A /* Models */,
+				CE2E67152D84A34900DF27D7 /* FormatterDay.swift */,
 			);
 			path = Tracker;
 			sourceTree = "<group>";
@@ -387,6 +390,7 @@
 				CEEF7AEC2D6DEEE40047305A /* ViewController.swift in Sources */,
 				CE2E670B2D806D9700DF27D7 /* TrackerPresenter.swift in Sources */,
 				CE2E67142D81E87E00DF27D7 /* TrackerSupplementaryView.swift in Sources */,
+				CE2E67162D84A34900DF27D7 /* FormatterDay.swift in Sources */,
 				CE2E66F72D7B4F4800DF27D7 /* TextFieldCell.swift in Sources */,
 				CEEF7B702D71DE020047305A /* TrackerCategory.swift in Sources */,
 				CEEF7B762D7884FD0047305A /* HabitCreatingViewController.swift in Sources */,

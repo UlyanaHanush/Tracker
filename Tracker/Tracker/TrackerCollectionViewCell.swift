@@ -19,31 +19,21 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
     var completedDaysCount: Int = 0
     var isCompleted: Bool = false
     var currentDate: Date?
-    
-    var tracker: Tracker? {
-        didSet {
-            nameLabel.text = tracker?.name
-            emojiLabel.text = tracker?.emoji
-            cardView.backgroundColor = tracker?.color
-            plusCompletedButton.backgroundColor = tracker?.color
-        }
-    }
+    var tracker: Tracker?
     
     lazy var cardView: UIView = {
         let card = UIView()
         
         card.backgroundColor = .red
+        card.layer.cornerRadius = 16
         
         card.translatesAutoresizingMaskIntoConstraints = false
-        card.layer.cornerRadius = 16
         return card
     }()
     
     lazy var nameLabel: UILabel = {
         let name = UILabel()
-        
         name.text = "Сделать сюрприз маме"
-        
         name.textColor = .white
         name.font = UIFont.systemFont(ofSize: 12, weight: .medium)
         name.numberOfLines = 0
@@ -54,13 +44,11 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
     
     lazy var emojiLabel: UILabel = {
         let emoji = UILabel()
-        
-        emoji.text = "🌺"
-        
         emoji.clipsToBounds = true
         emoji.layer.cornerRadius = 16
         emoji.backgroundColor = UIColor(white: 1, alpha: 0.3)
         
+        emoji.text = "🌺"
         emoji.font = .systemFont(ofSize: 16)
         emoji.textAlignment = .center
         
@@ -70,20 +58,20 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
     
     lazy var counterLabel: UILabel = {
         let days = UILabel()
-        days.translatesAutoresizingMaskIntoConstraints = false
         days.font = .systemFont(ofSize: 12, weight: .medium)
+        
+        days.translatesAutoresizingMaskIntoConstraints = false
         return days
     }()
     
     lazy var plusCompletedButton: UIButton = {
         let plus = UIButton()
-        
-        let image = UIImage(systemName: "plus")
-        plus.setImage(image, for: .normal)
-        
         plus.backgroundColor = .red
         plus.tintColor = .white
         plus.layer.cornerRadius = 20
+        
+        let image = UIImage(systemName: "plus")
+        plus.setImage(image, for: .normal)
         
         plus.addTarget(nil, action: #selector(plusCompleteButtonTapped), for: .touchUpInside)
         
@@ -104,6 +92,21 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         return nil
     }
     
+    // MARK: - Publike Methods
+    
+    func configure(with tracker: Tracker, currentDate: Date, completedDaysCount: Int, isCompleted: Bool) {
+        self.tracker = tracker
+        self.currentDate = currentDate
+        self.completedDaysCount = completedDaysCount
+        self.isCompleted = isCompleted
+        
+        nameLabel.text = tracker.name
+        emojiLabel.text = tracker.emoji
+        cardView.backgroundColor = tracker.color
+        counterLabel.text = "\(completedDaysCount) дней"
+        setCompletedStateForButton(isCompleted)
+    }
+    
     // MARK: - IBAction
     
     @IBAction private func plusCompleteButtonTapped() {
@@ -118,7 +121,7 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         isCompleted.toggle()
         completedDaysCount += isCompleted ? 1 : -1
         counterLabel.text = "\(completedDaysCount) дней"
-        setCompletedState(isCompleted)
+        setCompletedStateForButton(isCompleted)
 
         delegate?.didComplete(tracker, date: currentDate)
     }
@@ -156,17 +159,12 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         contentView.addSubview(cardView)
         cardView.addSubview(nameLabel)
         cardView.addSubview(emojiLabel)
+        
         contentView.addSubview(counterLabel)
         contentView.addSubview(plusCompletedButton)
         
         constraintSubviews()
-        setCompletedState(isCompleted)
     }
-     
-     private func updateCounterLabel() {
-         let daysLabelForCell = "\(completedDaysCount) дней"
-         counterLabel.text = daysLabelForCell
-     }
     
     private func isFutureDate(_ date: Date) -> Bool {
         let calendar = Calendar.current
@@ -175,9 +173,14 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         return selectedDate > today
     }
     
-    private func setCompletedState(_ isCompleted: Bool) {
+    private func setCompletedStateForButton(_ isCompleted: Bool) {
         let doneImage = isCompleted ? UIImage(named: "done") : UIImage(systemName: "plus")
         plusCompletedButton.setImage(doneImage, for: .normal)
         plusCompletedButton.alpha = isCompleted ? 0.3 : 1.0
     }
 }
+
+//private func updateCounterLabel() {
+//    let daysLabelForCell = "\(completedDaysCount) дней"
+//    counterLabel.text = daysLabelForCell
+// }

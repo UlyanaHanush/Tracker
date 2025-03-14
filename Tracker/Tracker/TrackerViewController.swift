@@ -15,6 +15,7 @@ protocol HabitCreatingDelegate {
 
 protocol TrackersViewControllerProtocol: AnyObject {
     var presenter: TrackersPresenter? { get }
+    func didAddTracker()
 }
 
 protocol TrackerCollectionViewCellDelegate: AnyObject {
@@ -28,24 +29,18 @@ final class TrackerViewController: UIViewController, TrackerTypeDelegate, HabitC
     // MARK: - Publike Properties
     
     var presenter: TrackersPresenter?
-//    var categories: [TrackerCategory] = []
-//    var completedTrackers: [TrackerRecord] = []
     
     // MARK: - Private Properties
-    
-    private let dateFormatter: DateFormatter = {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "dd.MM.yy"
-        formatter.locale = Locale(identifier: "ru")
-        return formatter
-    }()
-    
+
     private lazy var datePicker: UIBarButtonItem = {
         let picker = UIDatePicker()
         picker.preferredDatePickerStyle = .compact
         picker.datePickerMode = .date
         picker.locale = Locale(identifier: "ru_RU")
+        picker.widthAnchor.constraint(equalToConstant: 120).isActive = true
+        picker.translatesAutoresizingMaskIntoConstraints = false
         picker.tintColor = .tBlue
+
         picker.addTarget(self, action: #selector(datePickerValueChanged(_:)), for: .valueChanged)
 
         let datePicker = UIBarButtonItem(customView: picker)
@@ -56,6 +51,7 @@ final class TrackerViewController: UIViewController, TrackerTypeDelegate, HabitC
         let imageView = UIImageView()
         imageView.image = UIImage(named: "emptyTrackerStar")
         imageView.translatesAutoresizingMaskIntoConstraints = false
+        imageView.isHidden = false
         return imageView
     }()
     
@@ -63,6 +59,7 @@ final class TrackerViewController: UIViewController, TrackerTypeDelegate, HabitC
         let label = UILabel()
         label.text = "Что будем отслеживать?"
         label.font = UIFont.systemFont(ofSize: 12, weight: .medium)
+        label.isHidden = false
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -91,14 +88,18 @@ final class TrackerViewController: UIViewController, TrackerTypeDelegate, HabitC
         super.viewDidLoad()
     
         addSubviews()
-        presenter?.updateCategories()
     }
     
     // MARK: - Publike Methods
+
+    func didAddTracker() {
+        updateEmptyScreenVisibility()
+    }
     
     func didSelectType(_ type: TrackerType) {
         showHabitCreatingScreen(type)
     }
+    
     
     // MARK: - HabitCreatingDelegate 
     
@@ -121,6 +122,7 @@ final class TrackerViewController: UIViewController, TrackerTypeDelegate, HabitC
     
     @IBAction private func datePickerValueChanged(_ sender: UIDatePicker) {
         presenter?.currentDate = sender.date
+        presenter?.didFilterTrackersByDate(sender.date)
         trackersCollectionView.reloadData()
 //        let formattedDate = dateFormatter.string(from: selectedDate)
 //        print("Выбранная дата: \(formattedDate)")
@@ -147,14 +149,15 @@ final class TrackerViewController: UIViewController, TrackerTypeDelegate, HabitC
     }
     
     private func addSubviews() {
-        //view.addSubview(trackersCollectionView)
+        view.addSubview(trackersCollectionView)
         view.addSubview(emptyTrackerImage)
         view.addSubview(emptyTrackerText)
         view.backgroundColor = .white
-        view.addSubview(trackersCollectionView)
+        //view.addSubview(trackersCollectionView)
 
         setupConstraints()
         setupNavigationBar()
+        updateEmptyScreenVisibility()
     }
     
     private func setupNavigationBar() {
@@ -197,10 +200,15 @@ final class TrackerViewController: UIViewController, TrackerTypeDelegate, HabitC
         present(navigatorController, animated: true, completion: nil)
     }
     
-    private func setupEmptyScreen() {
-        emptyTrackerImage.isHidden = presenter?.categories.count ?? 0 > 0
-        emptyTrackerText.isHidden = presenter?.categories.count ?? 0 > 0
-        trackersCollectionView.isHidden = presenter?.categories.count == 0
+    private func updateEmptyScreenVisibility() {
+        guard let categories = presenter?.categories else { return }
+        let hasVisibleEmptyScreen = categories.isEmpty
+        emptyTrackerImage.isHidden = hasVisibleEmptyScreen ? false: true
+        emptyTrackerText.isHidden = hasVisibleEmptyScreen ? false: true
+    }
+    
+    private func filterTrackersByDate(_ date: Date) -> [TrackerCategory] {
+        return [TrackerCategory]()
     }
 }
 
@@ -214,21 +222,29 @@ extension TrackerViewController: UICollectionViewDataSource {
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: TrackerCollectionViewCell.cellIdentifier, for: indexPath) as? TrackerCollectionViewCell else { return UICollectionViewCell() }
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: TrackerCollectionViewCell.cellIdentifier, for: indexPath) as? TrackerCollectionViewCell else {
+            print("\(#file):\(#line)] \(#function) Ошибка приведения типа ячейки")
+            return UICollectionViewCell()
+        }
+        
         if let presenter {
             let tracker = presenter.categories[indexPath.section].trackers[indexPath.row]
+            let currentDate = presenter.currentDate
+            let isCompleted = presenter.isTrackerCompleted(tracker, date: presenter.currentDate)
+            let completedDaysCount = presenter.countCompletedDays(for:tracker)
             cell.delegate = self
-            cell.tracker = tracker
-            cell.currentDate = presenter.currentDate
-            cell.isCompleted = presenter.isTrackerCompleted(tracker, date: presenter.currentDate)
-            print(presenter.countCompletedDays(for:tracker))
-            cell.completedDaysCount = presenter.countCompletedDays(for:tracker)
+            
+            cell.configure(with: tracker, currentDate: currentDate, completedDaysCount: completedDaysCount, isCompleted: isCompleted)
         }
         return cell
     }
     
     func collectionView(_ collectionView: UICollectionView, viewForSupplementaryElementOfKind kind: String, at indexPath: IndexPath) -> UICollectionReusableView {
-        guard let view = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: TrackerSupplementaryView.supplementaryIdentifier, for: indexPath) as? TrackerSupplementaryView else { return UICollectionReusableView() }
+        guard let view = collectionView.dequeueReusableSupplementaryView(ofKind: kind, withReuseIdentifier: TrackerSupplementaryView.supplementaryIdentifier, for: indexPath) as? TrackerSupplementaryView else {
+            print("\(#file):\(#line)] \(#function) Ошибка приведения типа header view")
+            return UICollectionReusableView()
+        }
+        
         view.title.text = presenter?.categories[indexPath.section].title
         return view
     }
@@ -248,12 +264,10 @@ extension TrackerViewController: UICollectionViewDelegateFlowLayout {
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
-        
         return CGSize(width: collectionView.frame.width, height: 30)
     }
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
-        
         return UIEdgeInsets(top: 10, left: 0, bottom: 16, right: 0)
     }
 }

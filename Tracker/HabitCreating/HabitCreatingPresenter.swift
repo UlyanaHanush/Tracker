@@ -14,7 +14,7 @@ protocol HabitCreatingPresenterProtocol {
     
     var trackerName: String? { get set }
     var selectedCategory: TrackerCategory? { get }
-    var schedule: [Int] { get set }
+    var schedule: [WeekDay] { get set }
     
     func isValidForm() -> Bool
     
@@ -28,12 +28,13 @@ final class HabitCreatingPresenter: HabitCreatingPresenterProtocol {
     var view: HabitCreatingViewControllerProtocol?
     var trackerType: TrackerType
     var delegate: HabitCreatingDelegate?
-    var schedule: [Int] = []
+    var schedule: [WeekDay] = []
     var trackerName: String?
     
     var selectedCategory: TrackerCategory?
  
     var categories: [TrackerCategory]
+    let formatter = Formatter()
     
     
     
@@ -55,7 +56,8 @@ final class HabitCreatingPresenter: HabitCreatingPresenterProtocol {
     func createNewTracker() {
         guard let name = trackerName, let selectedCategory else { return }
         
-        let newTracker = Tracker(id: UUID(), name: name, color: .red, emoji: "🌺", schedule: schedule)
+        let data = formatter.dateFormatter.string(from: Date())
+        let newTracker = Tracker(id: UUID(), name: name, color: .red, emoji: "🌺", schedule: schedule, creationDate: data)
     
         delegate?.didCreateTracker(newTracker, at: selectedCategory)
     }

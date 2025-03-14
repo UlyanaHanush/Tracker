@@ -15,7 +15,7 @@ final class TabBarController: UITabBarController {
         super.viewDidLoad()
         setupTabBar()
         
-        tabBar.barTintColor = .black
+        tabBar.barTintColor = .white
         tabBar.tintColor = .tBlue
     }
     
