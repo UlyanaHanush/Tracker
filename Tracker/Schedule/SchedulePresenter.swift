@@ -18,16 +18,19 @@ final class SchedulePresenter: SchedulePresenterProtocol {
     
     // MARK: - Publike Properties
     
-    var view: ScheduleViewControllerProtocol?
+    weak var view: ScheduleViewControllerProtocol?
     var delegate: ScheduleDelegate?
-    
     var selectedWeekdays: [WeekDay]
+    
+    // MARK: - Initializers
     
     init(view: ScheduleViewControllerProtocol, selectedWeekdays: [WeekDay], delegate: ScheduleDelegate) {
           self.view = view
           self.delegate = delegate
           self.selectedWeekdays = selectedWeekdays
       }
+    
+    // MARK: - Publike Methods
     
     func getWeekDays() -> [String] {
         var calendar = Calendar.current

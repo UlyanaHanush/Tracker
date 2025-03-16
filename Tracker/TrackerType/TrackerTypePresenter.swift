@@ -7,15 +7,20 @@
 
 import Foundation
 
-protocol NewTrackerTypePresenterProtocol {
+protocol TrackerTypePresenterProtocol {
     var view: TrackerTypeViewControllerProtocol? { get }
     func selectType(_ type: TrackerType)
 }
 
-class NewTrackerTypePresenter: NewTrackerTypePresenterProtocol {
+final class TrackerTypePresenter: TrackerTypePresenterProtocol {
     
-    var view: TrackerTypeViewControllerProtocol?
+    // MARK: - Publike Properties
+    
+    weak var view: TrackerTypeViewControllerProtocol?
     var delegate: TrackerTypeDelegate?
+    
+    // MARK: - Publike Methods
+    
     func selectType(_ type: TrackerType) {
         delegate?.didSelectType(type)
     }

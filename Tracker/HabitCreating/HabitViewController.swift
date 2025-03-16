@@ -11,15 +11,15 @@ protocol ScheduleDelegate {
     func didSelect(weekdays: [WeekDay])
 }
 
-protocol HabitCreatingViewControllerProtocol {
-    var presenter: HabitCreatingPresenterProtocol? { get }
+protocol HabitViewControllerProtocol: AnyObject {
+    var presenter: HabitPresenterProtocol? { get }
 }
 
-final class HabitCreatingViewController: UIViewController, HabitCreatingViewControllerProtocol,  ScheduleDelegate, TextFieldCellDelegate {
+final class HabitViewController: UIViewController, HabitViewControllerProtocol,  ScheduleDelegate, TextFieldCellDelegate {
     
     // MARK: - Publike Properties
     
-    var presenter: HabitCreatingPresenterProtocol?
+    var presenter: HabitPresenterProtocol?
     
     // MARK: - Private Properties
     
@@ -69,6 +69,7 @@ final class HabitCreatingViewController: UIViewController, HabitCreatingViewCont
     private lazy var planningTableView: UITableView = {
         let tableView = UITableView(frame: .zero, style: .insetGrouped)
         tableView.backgroundColor = .white
+        tableView.rowHeight = 75
         tableView.isScrollEnabled = false
         tableView.separatorStyle = .singleLine
         tableView.allowsSelection = true
@@ -76,7 +77,6 @@ final class HabitCreatingViewController: UIViewController, HabitCreatingViewCont
         
         tableView.register(TextFieldCell.self, forCellReuseIdentifier: TextFieldCell.reuseIdentifier)
         tableView.register(TableViewCell.self, forCellReuseIdentifier: TableViewCell.reuseIdentifier)
-        tableView.rowHeight = 75
         
         tableView.delegate = self
         tableView.dataSource = self
@@ -180,7 +180,7 @@ final class HabitCreatingViewController: UIViewController, HabitCreatingViewCont
     }
     
     private func showCategoryScreen() {
-        
+        // TODO
     }
     
     private func updateButtonState() {
@@ -191,8 +191,7 @@ final class HabitCreatingViewController: UIViewController, HabitCreatingViewCont
 
 // MARK: - UITableViewDelegate
 
-extension HabitCreatingViewController: UITableViewDelegate {
-    // действия при тапе на ячейку
+extension HabitViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         guard let section = Section(rawValue: indexPath.section) else { return }
         switch rowsForSection(section)[indexPath.row] {
@@ -208,7 +207,8 @@ extension HabitCreatingViewController: UITableViewDelegate {
 }
 
 // MARK: - UITableViewDataSource
-extension HabitCreatingViewController: UITableViewDataSource {
+
+extension HabitViewController: UITableViewDataSource {
     func numberOfSections(in: UITableView) -> Int {
         return Section.allCases.count
     }
@@ -245,7 +245,6 @@ extension HabitCreatingViewController: UITableViewDataSource {
 }
 
 extension UIViewController {
-    
     func hideKeyboardOnTap() {
         let tap = UITapGestureRecognizer(target: self, action: #selector(UIViewController.dismissKeyboard))
         tap.cancelsTouchesInView = false

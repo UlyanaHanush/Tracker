@@ -1,5 +1,5 @@
 //
-//  NewTrackerTypeViewController.swift
+//  TrackerTypeViewController.swift
 //  Tracker
 //
 //  Created by ulyana on 5.03.25.
@@ -7,15 +7,15 @@
 
 import UIKit
 
-protocol TrackerTypeViewControllerProtocol {
-    var presenter: NewTrackerTypePresenterProtocol? { get }
+protocol TrackerTypeViewControllerProtocol: AnyObject {
+    var presenter: TrackerTypePresenterProtocol? { get }
 }
 
-final class NewTrackerTypeViewController: UIViewController, TrackerTypeViewControllerProtocol {
+final class TrackerTypeViewController: UIViewController, TrackerTypeViewControllerProtocol {
     
     // MARK: - Publike Properties
     
-    var presenter: NewTrackerTypePresenterProtocol?
+    var presenter: TrackerTypePresenterProtocol?
     
     // MARK: - Private Properties
     
@@ -50,7 +50,6 @@ final class NewTrackerTypeViewController: UIViewController, TrackerTypeViewContr
         
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
-        
     }()
     
     // MARK: - UIViewController(*)

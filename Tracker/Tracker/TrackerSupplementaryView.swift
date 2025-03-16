@@ -12,28 +12,42 @@ class TrackerSupplementaryView: UICollectionReusableView {
     // MARK: - Constants
     
     static let supplementaryIdentifier = "header"
+
+    lazy var titleLabel: UILabel = {
+        let title = UILabel()
+        title.font = .systemFont(ofSize: 18, weight: .bold)
+        title.textColor = .black
+        
+        title.translatesAutoresizingMaskIntoConstraints = false
+        return title
+    }()
     
-    
-    let title = UILabel()
+    // MARK: - Initializers
     
     override init(frame: CGRect) {
         super.init(frame: frame)
         
-        addSubview(title)
-        title.font = .systemFont(ofSize: 18, weight: .bold)
-        title.textColor = .black
-        title.translatesAutoresizingMaskIntoConstraints = false
-        
-        NSLayoutConstraint.activate([
-            title.topAnchor.constraint(equalTo: topAnchor),
-            title.bottomAnchor.constraint(equalTo: bottomAnchor),
-            title.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 12),
-            title.trailingAnchor.constraint(greaterThanOrEqualTo: trailingAnchor, constant: 12)
-        ])
+        addSubview()
     }
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+    
+    // MARK: - Private Methods
+    
+    private func addSubview() {
+        addSubview(titleLabel)
+        setupConstraints()
+    }
+    
+    private func setupConstraints() {
+        NSLayoutConstraint.activate([
+            titleLabel.topAnchor.constraint(equalTo: topAnchor),
+            titleLabel.bottomAnchor.constraint(equalTo: bottomAnchor),
+            titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 12),
+            titleLabel.trailingAnchor.constraint(greaterThanOrEqualTo: trailingAnchor, constant: 12)
+        ])
     }
 }
 

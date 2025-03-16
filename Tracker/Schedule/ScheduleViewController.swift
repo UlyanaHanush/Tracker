@@ -7,7 +7,7 @@
 
 import UIKit
 
-protocol ScheduleViewControllerProtocol {
+protocol ScheduleViewControllerProtocol: AnyObject {
     var presenter: SchedulePresenterProtocol? { get }
 }
 
@@ -26,14 +26,13 @@ final class ScheduleViewController: UIViewController, ScheduleViewControllerProt
         button.backgroundColor = .black
         button.setTitle("Готово", for: .normal)
         button.tintColor = .white
-//        button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
-//        button.titleLabel?.textAlignment = .center
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 16, weight: .medium)
+        button.titleLabel?.textAlignment = .center
         
         button.addTarget(nil, action: #selector(didReadyButton(_:)), for: .touchUpInside)
         
         button.translatesAutoresizingMaskIntoConstraints = false
         return button
-        
     }()
     
     private lazy var scheduleTableView: UITableView = {
@@ -115,7 +114,6 @@ final class ScheduleViewController: UIViewController, ScheduleViewControllerProt
 // MARK: - UITableViewDelegate
 
 extension ScheduleViewController: UITableViewDelegate {
-    // действия при тапе на ячейку
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
     }
 }

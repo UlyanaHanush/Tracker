@@ -23,7 +23,6 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
     
     lazy var cardView: UIView = {
         let card = UIView()
-        
         card.backgroundColor = .red
         card.layer.cornerRadius = 16
         
@@ -33,7 +32,6 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
     
     lazy var nameLabel: UILabel = {
         let name = UILabel()
-        name.text = "Сделать сюрприз маме"
         name.textColor = .white
         name.font = UIFont.systemFont(ofSize: 12, weight: .medium)
         name.numberOfLines = 0
@@ -48,9 +46,9 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         emoji.layer.cornerRadius = 16
         emoji.backgroundColor = UIColor(white: 1, alpha: 0.3)
         
-        emoji.text = "🌺"
         emoji.font = .systemFont(ofSize: 16)
         emoji.textAlignment = .center
+        emoji.text = "🌺"
         
         emoji.translatesAutoresizingMaskIntoConstraints = false
         return emoji
@@ -129,31 +127,31 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
     // MARK: - Private Methods
     
     private func constraintSubviews() {
-           NSLayoutConstraint.activate([
+        NSLayoutConstraint.activate([
             cardView.topAnchor.constraint(equalTo: contentView.topAnchor),
             cardView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
             cardView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
             cardView.heightAnchor.constraint(equalToConstant: 90),
-               
+            
             nameLabel.topAnchor.constraint(greaterThanOrEqualTo: emojiLabel.bottomAnchor, constant: 4),
             nameLabel.bottomAnchor.constraint(equalTo: cardView.bottomAnchor, constant: -12),
             nameLabel.leadingAnchor.constraint(equalTo: cardView.leadingAnchor, constant: 12),
             nameLabel.trailingAnchor.constraint(equalTo: cardView.trailingAnchor, constant: -12),
-               
+            
             emojiLabel.heightAnchor.constraint(equalToConstant: 30),
             emojiLabel.widthAnchor.constraint(equalToConstant: 30),
             emojiLabel.topAnchor.constraint(equalTo: cardView.topAnchor, constant: 12),
             emojiLabel.leadingAnchor.constraint(equalTo: cardView.leadingAnchor, constant: 12),
-               
+            
             counterLabel.topAnchor.constraint(equalTo: cardView.bottomAnchor, constant: 16),
             counterLabel.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 12),
-               
+            
             plusCompletedButton.topAnchor.constraint(equalTo: cardView.bottomAnchor, constant: 8),
             plusCompletedButton.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
             plusCompletedButton.heightAnchor.constraint(equalToConstant: 34),
             plusCompletedButton.widthAnchor.constraint(equalToConstant: 34)
-           ])
-       }
+        ])
+    }
     
     private func addSubviews() {
         contentView.addSubview(cardView)
@@ -179,8 +177,3 @@ final class TrackerCollectionViewCell: UICollectionViewCell {
         plusCompletedButton.alpha = isCompleted ? 0.3 : 1.0
     }
 }
-
-//private func updateCounterLabel() {
-//    let daysLabelForCell = "\(completedDaysCount) дней"
-//    counterLabel.text = daysLabelForCell
-// }

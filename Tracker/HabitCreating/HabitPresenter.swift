@@ -7,42 +7,41 @@
 
 import Foundation
 
-protocol HabitCreatingPresenterProtocol {
-    var view: HabitCreatingViewControllerProtocol? { get }
-    
+protocol HabitPresenterProtocol {
+    var view: HabitViewControllerProtocol? { get }
     var trackerType: TrackerType { get set }
-    
     var trackerName: String? { get set }
     var selectedCategory: TrackerCategory? { get }
     var schedule: [WeekDay] { get set }
-    
     func isValidForm() -> Bool
-    
     func createNewTracker()
 }
 
-final class HabitCreatingPresenter: HabitCreatingPresenterProtocol {
+final class HabitPresenter: HabitPresenterProtocol {
+    
+    // MARK: - Constants
+    
+    let formatter = Formatter()
     
     // MARK: - Publike Properties
     
-    var view: HabitCreatingViewControllerProtocol?
+    weak var view: HabitViewControllerProtocol?
     var trackerType: TrackerType
     var delegate: HabitCreatingDelegate?
     var schedule: [WeekDay] = []
     var trackerName: String?
-    
     var selectedCategory: TrackerCategory?
- 
     var categories: [TrackerCategory]
-    let formatter = Formatter()
-    
-    
+
+    // MARK: - Initializers
     
     init(trackerType: TrackerType, categories: [TrackerCategory]) {
         self.trackerType = trackerType
         self.categories = categories
         self.selectedCategory = categories.first
     }
+    
+    // MARK: - Publike Methods
     
     func isValidForm() -> Bool {
         switch trackerType {
