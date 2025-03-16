@@ -11,6 +11,7 @@ protocol SchedulePresenterProtocol {
     var view: ScheduleViewControllerProtocol? { get }
     var selectedWeekdays: [WeekDay] { get set }
     func getWeekDays() -> [String]
+    func getShortWeekDays() -> [String]
     func done()
 }
 

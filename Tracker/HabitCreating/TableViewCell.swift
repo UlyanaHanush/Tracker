@@ -31,8 +31,8 @@ class TableViewCell: UITableViewCell {
         backgroundColor = .bgTableView
         textLabel?.font = .systemFont(ofSize: 17, weight: .regular)
         textLabel?.textColor = .black
-//        detailTextLabel?.font = .systemFont(ofSize: 17, weight: .regular)
-//        detailTextLabel?.textColor = .tGray
+        detailTextLabel?.font = .systemFont(ofSize: 17, weight: .regular)
+        detailTextLabel?.textColor = .tGray
         selectionStyle = .default
     }
 }

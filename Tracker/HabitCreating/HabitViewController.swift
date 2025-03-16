@@ -98,6 +98,7 @@ final class HabitViewController: UIViewController, HabitViewControllerProtocol, 
     func didSelect(weekdays: [WeekDay]) {
         presenter?.schedule = weekdays
         updateButtonState()
+        planningTableView.reloadData()
     }
     
     // MARK: - TextFieldCellDelegate
@@ -238,6 +239,9 @@ extension HabitViewController: UITableViewDataSource {
         case .schedule:
             guard let cell = tableView.dequeueReusableCell(withIdentifier: TableViewCell.reuseIdentifier) as? TableViewCell else { return UITableViewCell() }
             cell.textLabel?.text = "Расписание"
+            
+            let weekDays = presenter?.schedule.map { $0.shortForm }.joined(separator: ", ")
+            cell.detailTextLabel?.text = weekDays
             cell.accessoryType = .disclosureIndicator
             return cell
         }
