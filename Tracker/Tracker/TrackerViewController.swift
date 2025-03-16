@@ -33,6 +33,7 @@ final class TrackerViewController: UIViewController, TrackerTypeDelegate, HabitC
     
     // MARK: - Private Properties
 
+    //  datePicker оставлен в начальном состоянии -> обсуждено с наставником
     private lazy var datePicker: UIBarButtonItem = {
         let picker = UIDatePicker()
         picker.preferredDatePickerStyle = .compact
@@ -274,8 +275,8 @@ extension TrackerViewController: UICollectionViewDelegateFlowLayout {
     }
 }
 
+// TODO для следующих спринтов -> исправить выделение
 extension TrackerViewController: UICollectionViewDelegate {
-
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
     }
     
