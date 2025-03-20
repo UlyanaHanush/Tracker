@@ -231,15 +231,14 @@ extension TrackerViewController: UICollectionViewDataSource {
             return UICollectionViewCell()
         }
         
-        if let presenter {
-            let tracker = presenter.filteredCategories[indexPath.section].trackers[indexPath.row]
-            let currentDate = presenter.currentDate
-            let isCompleted = presenter.isTrackerCompleted(tracker, date: presenter.currentDate)
-            let completedDaysCount = presenter.countCompletedDays(for:tracker)
-            cell.delegate = self
-            
-            cell.configure(with: tracker, currentDate: currentDate, completedDaysCount: completedDaysCount, isCompleted: isCompleted)
-        }
+        guard let presenter else { return UICollectionViewCell() }
+        let tracker = presenter.filteredCategories[indexPath.section].trackers[indexPath.row]
+        let currentDate = presenter.currentDate
+        let isCompleted = presenter.isTrackerCompleted(tracker, date: presenter.currentDate)
+        let completedDaysCount = presenter.countCompletedDays(for:tracker)
+        cell.delegate = self
+        
+        cell.configure(with: tracker, currentDate: currentDate, completedDaysCount: completedDaysCount, isCompleted: isCompleted)
         return cell
     }
     

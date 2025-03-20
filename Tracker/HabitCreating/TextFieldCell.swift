@@ -26,9 +26,11 @@ final class TextFieldCell: UITableViewCell {
     private lazy var trackerNameTextField: UITextField = {
         let textField = UITextField()
         textField.placeholder = "Введите название трекера"
-        textField.clearButtonMode = .always
+        textField.clearButtonMode = .whileEditing
         textField.delegate = self
-        
+        textField.backgroundColor = .clear
+        textField.textColor = .black
+    
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
     }()
@@ -64,16 +66,9 @@ final class TextFieldCell: UITableViewCell {
 // MARK: - UITextFieldDelegate
 
 extension TextFieldCell: UITextFieldDelegate {
-    func textFieldShouldEndEditing(_ textField: UITextField) -> Bool {
-        return true
-    }
-    
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         self.endEditing(true)
-        return true
-    }
-    
-    func textFieldDidEndEditing(_ textField: UITextField) {
         delegate?.didTextChange(text: textField.text)
+        return true
     }
 }

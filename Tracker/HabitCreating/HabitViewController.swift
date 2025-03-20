@@ -135,8 +135,8 @@ final class HabitViewController: UIViewController, HabitViewControllerProtocol, 
             buttonsStackView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
             
             // tableview Constraints
-            planningTableView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: 20),
-            planningTableView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -20),
+            planningTableView.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor),
+            planningTableView.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor),
             planningTableView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             planningTableView.bottomAnchor.constraint(equalTo: buttonsStackView.topAnchor)
         ])
@@ -151,8 +151,6 @@ final class HabitViewController: UIViewController, HabitViewControllerProtocol, 
         setupConstraints()
         setupNavigationBar()
         view.backgroundColor = .white
-        
-        updateButtonState()
     }
     
     private func rowsForSection(_ type: Section) -> [Section.Row] {
@@ -239,9 +237,7 @@ extension HabitViewController: UITableViewDataSource {
         case .schedule:
             guard let cell = tableView.dequeueReusableCell(withIdentifier: TableViewCell.reuseIdentifier) as? TableViewCell else { return UITableViewCell() }
             cell.textLabel?.text = "Расписание"
-            
-            let weekDays = presenter?.schedule.map { $0.shortForm }.joined(separator: ", ")
-            cell.detailTextLabel?.text = weekDays
+            cell.detailTextLabel?.text = presenter?.getShortFormWeekDays()
             cell.accessoryType = .disclosureIndicator
             return cell
         }

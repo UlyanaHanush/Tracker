@@ -63,14 +63,14 @@ final class TrackerTypeViewController: UIViewController, TrackerTypeViewControll
     // MARK: - IBAction
     
     @IBAction private func didHabitButton(_ sender: Any) {
-        dismiss(animated: true) {
-            self.presenter?.selectType(.Habit)
+        dismiss(animated: true) { [weak self] in
+            self?.presenter?.selectType(.Habit)
         }
     }
     
     @IBAction private func didIrregularEventsButton(_ sender: Any) {
-        dismiss(animated: true) {
-            self.presenter?.selectType(.UnRegularEvent)
+        dismiss(animated: true) { [weak self] in
+            self?.presenter?.selectType(.UnRegularEvent)
         }
     }
     
