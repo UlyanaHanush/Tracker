@@ -33,13 +33,13 @@ final class TrackersPresenter: TrackersPresenterProtocol {
     // MARK: - Initializers
     
     init() {
-        let tracker = Tracker(id: UUID(), name: "Помочь бабушке", color: .red, emoji: "❤️", schedule: [.monday], creationDate: "14.03.2025")
+        let tracker = Tracker(id: UUID(), name: "Помочь бабушке", color: .red, emoji: "❤️", schedule: [.monday], creationDate: Date())
         let category = TrackerCategory(title: "Обязательства перед семьей", trackers: [tracker])
         categories.append(category)
         
-        let tracker1 = Tracker(id: UUID(), name: "Сходить в бассейн", color: .green, emoji: "😻", schedule: [.friday, .tuesday], creationDate: "12.03.2025")
-        let tracker2 = Tracker(id: UUID(), name: "Устроить бьюти день", color: .blue, emoji: "🌺", schedule: [.thursday, .saturday], creationDate: "11.03.2025")
-        let tracker3 = Tracker(id: UUID(), name: "Занятия теннисом", color: .yellow, emoji: "❤️", schedule: [.sunday, .wednesday, .friday], creationDate: "13.03.2025")
+        let tracker1 = Tracker(id: UUID(), name: "Сходить в бассейн", color: .green, emoji: "😻", schedule: [.friday, .tuesday], creationDate: Date())
+        let tracker2 = Tracker(id: UUID(), name: "Устроить бьюти день", color: .blue, emoji: "🌺", schedule: [.thursday, .saturday], creationDate: Date())
+        let tracker3 = Tracker(id: UUID(), name: "Занятия теннисом", color: .yellow, emoji: "❤️", schedule: [.sunday, .wednesday, .friday], creationDate:  Date())
         let category2 = TrackerCategory(title: "Красота", trackers: [tracker1, tracker2, tracker3])
         categories.append(category2)
     }
@@ -96,7 +96,7 @@ final class TrackersPresenter: TrackersPresenterProtocol {
                 let filteredTitle = category.title
 
                 let filteredTrackers = category.trackers.filter { tracker in
-                    tracker.schedule.count == 0 && tracker.creationDate == currentDate || tracker.schedule.contains(weekDayForm)
+                    tracker.schedule.count == 0 && formatter.dateFormatter.string(from: tracker.creationDate) == currentDate || tracker.schedule.contains(weekDayForm)
                 }
                 
                 if !filteredTrackers.isEmpty {

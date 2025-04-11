@@ -1,5 +1,5 @@
 //
-//  Section.swift
+//  SectionHabitTableView.swift
 //  Tracker
 //
 //  Created by ulyana on 8.03.25.
@@ -7,7 +7,7 @@
 
 import Foundation
 
-enum Section: Int, CaseIterable {
+enum SectionHabitTableView: Int, CaseIterable {
     case textField
     case planning
     

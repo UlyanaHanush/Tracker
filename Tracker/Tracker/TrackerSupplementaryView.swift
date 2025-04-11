@@ -15,7 +15,7 @@ class TrackerSupplementaryView: UICollectionReusableView {
 
     lazy var titleLabel: UILabel = {
         let title = UILabel()
-        title.font = .systemFont(ofSize: 18, weight: .bold)
+        title.font = .systemFont(ofSize: 19, weight: .bold)
         title.textColor = .black
         
         title.translatesAutoresizingMaskIntoConstraints = false
@@ -44,7 +44,7 @@ class TrackerSupplementaryView: UICollectionReusableView {
     private func setupConstraints() {
         NSLayoutConstraint.activate([
             titleLabel.topAnchor.constraint(equalTo: topAnchor),
-            titleLabel.bottomAnchor.constraint(equalTo: bottomAnchor),
+            titleLabel.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -12),
             titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 12),
             titleLabel.trailingAnchor.constraint(greaterThanOrEqualTo: trailingAnchor, constant: 12)
         ])

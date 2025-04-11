@@ -50,7 +50,7 @@ final class TextFieldCell: UITableViewCell {
     
     private func setupConstraints() {
         NSLayoutConstraint.activate([
-            trackerNameTextField.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            trackerNameTextField.trailingAnchor.constraint(equalTo: contentView.safeAreaLayoutGuide.trailingAnchor),
             trackerNameTextField.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 20),
             trackerNameTextField.centerYAnchor.constraint(equalTo: contentView.safeAreaLayoutGuide.centerYAnchor)
         ])
