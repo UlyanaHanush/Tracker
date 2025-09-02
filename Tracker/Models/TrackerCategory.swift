@@ -3,7 +3,6 @@
 //  Tracker
 //
 //  Created by ulyana on 28.02.25.
-//
 
 import Foundation
 

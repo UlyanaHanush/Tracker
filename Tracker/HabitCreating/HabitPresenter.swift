@@ -93,7 +93,7 @@ final class HabitPresenter: HabitPresenterProtocol {
         guard let name = trackerName, let selectedCategory else { return }
         
         //let data = formatter.dateFormatter.string(from: Date())
-        let newTracker = Tracker(id: UUID(), name: name, color: selectedColor ?? .clear, emoji: selectedEmoji ?? "", schedule: schedule, creationDate: Date())
+        let newTracker = Tracker(id: UUID(), name: name, color: selectedColor ?? .clear, emoji: selectedEmoji ?? "", schedule: schedule, date: Date())
     
         delegate?.didCreateTracker(newTracker, at: selectedCategory)
     }
