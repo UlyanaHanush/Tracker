@@ -33,7 +33,9 @@ final class TrackerStore {
     }
     
     func fetchTracker() throws -> [Tracker] {
-        let fetchRequest = TrackerCoreData.fetchRequest()
+        let fetchRequest = NSFetchRequest<TrackerCoreData>(entityName: "TrackerCoreDa
+                                                           ta")
+        TrackerDataModel.fetchRequest()
         let trackerFromCoreData = try context.fetch(fetchRequest)
         return try trackerFromCoreData.map { try self.tracker(from: $0) }
     }
