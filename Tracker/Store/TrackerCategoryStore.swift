@@ -46,6 +46,6 @@ final class TrackerCategoryStore {
             throw TrackerCategoryStoreError.decodingErrorInvalidTitle
         }
         
-        return trackerCategory(title: title)
+        return TrackerCategory(title: title, trackers: [Tracker])
     }
 }

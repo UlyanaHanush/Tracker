@@ -40,21 +40,18 @@ final class TrackerRecordStore {
 
     func updateExistingTrackerRecord(_ trackerRecordCoreData: TrackerRecordCoreData, with trackerRecord: TrackerRecord) {
         trackerRecordCoreData.id = trackerRecord.id
-        trackerRecordCoreData.date = trackerRecord.date
+        trackerRecordCoreData.data = trackerRecord.date
     }
 
     func trackerRecord(from trackerRecordCoreData: TrackerRecordCoreData) throws -> TrackerRecord {
         guard let id = trackerRecordCoreData.id else {
             throw TrackerRecordStoreError.decodingErrorInvalidId
         }
-        guard let date = trackerRecordCoreData.date else {
+        guard let date = trackerRecordCoreData.data else {
             throw TrackerRecordStoreError.decodingErrorInvalidDate
         }
         
-        return trackerRecord(
-            id: id,
-            date: date
-        )
+        return TrackerRecord(id: id, date: date)
     }
 }
 
