@@ -25,11 +25,11 @@ final class TrackerCategoryStore {
         self.context = context
     }
     
-    func fetchTrackerCategory() throws -> [TrackerCategory] {
-        let fetchRequest = TrackerCategoryCoreData.fetchRequest()
-        let trackerCategoryFromCoreData = try context.fetch(fetchRequest)
-        return try trackerCategoryFromCoreData.map { try self.trackerCategory(from: $0) }
-    }
+//    func fetchTrackerCategory() throws -> [TrackerCategory] {
+//        let fetchRequest = TrackerCategoryCoreData.fetchRequest()
+//        let trackerCategoryFromCoreData = try context.fetch(fetchRequest)
+//        return try trackerCategoryFromCoreData.map { try self.trackerCategory(from: $0) }
+//    }
 
     func addNewTrackerCategory(_ trackerCategory: TrackerCategory) throws {
         let trackerCategoryCoreData = TrackerCategoryCoreData(context: context)
@@ -41,11 +41,11 @@ final class TrackerCategoryStore {
         trackerCategoryCoreData.title = trackerCategory.title
     }
 
-    func trackerCategory(from trackerCategoryCoreData: TrackerCategoryCoreData) throws -> TrackerCategory {
-        guard let title = trackerCategoryCoreData.title else {
-            throw TrackerCategoryStoreError.decodingErrorInvalidTitle
-        }
-        
-        return TrackerCategory(title: title, trackers: [Tracker])
-    }
+//    func trackerCategory(from trackerCategoryCoreData: TrackerCategoryCoreData) throws -> TrackerCategory {
+//        guard let title = trackerCategoryCoreData.title else {
+//            throw TrackerCategoryStoreError.decodingErrorInvalidTitle
+//        }
+//        
+//        return TrackerCategory(title: title, trackers: [Tracker])
+//    }
 }

@@ -27,6 +27,8 @@ import UIKit
 
 final class TrackerViewController: UIViewController, TrackerTypeDelegate, HabitCreatingDelegate, TrackersViewControllerProtocol, TrackerCollectionViewCellDelegate {
     
+    //private let trackerStore = TrackerStore()
+    
     // MARK: - Publike Properties
     
     var presenter: TrackersPresenter?
@@ -88,7 +90,8 @@ final class TrackerViewController: UIViewController, TrackerTypeDelegate, HabitC
     
     override func viewDidLoad() {
         super.viewDidLoad()
-    
+
+        //trackerStore.delegate = self
         addSubviews()
     }
     
@@ -326,3 +329,24 @@ extension TrackerViewController: UISearchBarDelegate {
         trackersCollectionView.reloadData()
     }
 }
+
+
+//extension TrackerViewController: TrackerStoreDelegate {
+//    func store(_ store: TrackerStore, didUpdate update: TrackerStoreUpdate) {
+////        visibleEmojiMixes = emojiMixStore.emojiMixes
+////        collectionView.performBatchUpdates {
+////            let insertedIndexPaths = update.insertedIndexes.map { IndexPath(item: $0, section: 0) }
+////            let deletedIndexPaths = update.deletedIndexes.map { IndexPath(item: $0, section: 0) }
+////            let updatedIndexPaths = update.updatedIndexes.map { IndexPath(item: $0, section: 0) }
+////            collectionView.insertItems(at: insertedIndexPaths)
+////            collectionView.insertItems(at: deletedIndexPaths)
+////            collectionView.insertItems(at: updatedIndexPaths)
+////            for move in update.movedIndexes {
+////                collectionView.moveItem(
+////                    at: IndexPath(item: move.oldIndex, section: 0),
+////                    to: IndexPath(item: move.newIndex, section: 0)
+////                )
+////            }
+////        }
+//    }
+//}

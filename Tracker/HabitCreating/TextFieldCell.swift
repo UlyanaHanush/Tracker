@@ -66,9 +66,11 @@ final class TextFieldCell: UITableViewCell {
 // MARK: - UITextFieldDelegate
 
 extension TextFieldCell: UITextFieldDelegate {
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        self.endEditing(true)
-        delegate?.didTextChange(text: textField.text)
-        return true
+    func textFieldDidEndEditing(_ textField: UITextField) {
+        if textField.text == "" {
+            return
+        } else {
+            delegate?.didTextChange(text: textField.text)
+        }
     }
 }

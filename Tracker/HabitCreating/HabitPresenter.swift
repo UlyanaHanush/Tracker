@@ -80,9 +80,9 @@ final class HabitPresenter: HabitPresenterProtocol {
         if let trackerName {
             switch trackerType {
             case .Habit:
-                return selectedCategory != nil && !trackerName.isEmpty && !schedule.isEmpty
+                return !trackerName.isEmpty && !schedule.isEmpty //selectedCategory != nil &&
             case .UnRegularEvent:
-                return selectedCategory != nil && !trackerName.isEmpty
+                return !trackerName.isEmpty //selectedCategory != nil &&
             }
         } else {
             return false
