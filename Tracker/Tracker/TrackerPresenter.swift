@@ -21,6 +21,8 @@ final class TrackersPresenter: TrackersPresenterProtocol {
     
     let formatter = Formatter()
     
+    private let trackerStore = TrackerStore()
+    
     // MARK: - Publike Properties
     
     weak var view: TrackersViewControllerProtocol?
@@ -29,6 +31,8 @@ final class TrackersPresenter: TrackersPresenterProtocol {
     var search: String = ""
     var currentDate: Date = Date()
     var filteredCategories: [TrackerCategory] = []
+    
+    var visibleTracker: [Tracker] = []
     
     // MARK: - Initializers
     
@@ -62,6 +66,8 @@ final class TrackersPresenter: TrackersPresenterProtocol {
         self.categories = categories
         
         filterTrackersByDate(currentDate)
+        
+        //try! trackerStore.addNewTracker(tracker)
         view?.didAddTracker()
     }
     

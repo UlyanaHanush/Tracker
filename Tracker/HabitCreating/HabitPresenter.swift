@@ -27,7 +27,11 @@ final class HabitPresenter: HabitPresenterProtocol {
     
     // MARK: - Constants
     
+    private let trackerStore = TrackerStore()
     let formatter = Formatter()
+    
+    // MARK: - Publike Properties
+    
     var emojiCollectionView: [SectionHabitCollectionView] = [
         SectionHabitCollectionView(title: "Emoji", row: ["😊", "🐱", "🎯", "🐶", "❤️", "😱","😇", "😡", "🥶", "🤔", "🌟", "🍔", "🥦", "🏓", "🥇", "🎸", "🌴", "😭"])]
     var colorCollectionView: [SectionHabitCollectionView] = [
@@ -52,8 +56,6 @@ final class HabitPresenter: HabitPresenterProtocol {
             UIColor.systemGreen.withAlphaComponent(0.6)
         ])
     ]
-     
-    // MARK: - Publike Properties
     
     weak var view: HabitViewControllerProtocol?
     var trackerType: TrackerType
@@ -80,9 +82,11 @@ final class HabitPresenter: HabitPresenterProtocol {
         if let trackerName {
             switch trackerType {
             case .Habit:
-                return !trackerName.isEmpty && !schedule.isEmpty //selectedCategory != nil &&
+                //TODO: selectedCategory != nil &&
+                return !trackerName.isEmpty && !schedule.isEmpty
             case .UnRegularEvent:
-                return !trackerName.isEmpty //selectedCategory != nil &&
+                //TODO: selectedCategory != nil &&
+                return !trackerName.isEmpty
             }
         } else {
             return false
@@ -94,7 +98,8 @@ final class HabitPresenter: HabitPresenterProtocol {
         
         //let data = formatter.dateFormatter.string(from: Date())
         let newTracker = Tracker(id: UUID(), name: name, color: selectedColor ?? .clear, emoji: selectedEmoji ?? "", schedule: schedule, date: Date())
-    
+
+        try! trackerStore.addNewTracker(newTracker)
         delegate?.didCreateTracker(newTracker, at: selectedCategory)
     }
     

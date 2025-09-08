@@ -27,14 +27,16 @@ import UIKit
 
 final class TrackerViewController: UIViewController, TrackerTypeDelegate, HabitCreatingDelegate, TrackersViewControllerProtocol, TrackerCollectionViewCellDelegate {
     
-    //private let trackerStore = TrackerStore()
+    private let trackerStore = TrackerStore()
     
     // MARK: - Publike Properties
     
     var presenter: TrackersPresenter?
     
     // MARK: - Private Properties
-
+    
+    private var visibleTracker: [Tracker] = []
+    
     //  datePicker оставлен в начальном состоянии -> обсуждено с наставником
     private lazy var datePicker: UIBarButtonItem = {
         let picker = UIDatePicker()
@@ -91,7 +93,7 @@ final class TrackerViewController: UIViewController, TrackerTypeDelegate, HabitC
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        //trackerStore.delegate = self
+        trackerStore.delegate = self
         addSubviews()
     }
     
@@ -164,11 +166,13 @@ final class TrackerViewController: UIViewController, TrackerTypeDelegate, HabitC
         setupConstraints()
         setupNavigationBar()
         
-        if let data = presenter?.currentDate {
-            presenter?.filterTrackersByDate(data)
-        }
+//        if let data = presenter?.currentDate {
+//            presenter?.filterTrackersByDate(data)
+//        }
+//        
+//        updateEmptyScreenVisibility()
         
-        updateEmptyScreenVisibility()
+        visibleTracker = trackerStore.tracker
     }
     
     private func setupNavigationBar() {
@@ -221,11 +225,13 @@ final class TrackerViewController: UIViewController, TrackerTypeDelegate, HabitC
 
 extension TrackerViewController: UICollectionViewDataSource {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return presenter?.filteredCategories.count ?? 0
+        //return presenter?.filteredCategories.count ?? 0
+        return 1
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return presenter?.filteredCategories[section].trackers.count ?? 0
+        //return presenter?.filteredCategories[section].trackers.count ?? 0
+        return visibleTracker.count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -235,7 +241,9 @@ extension TrackerViewController: UICollectionViewDataSource {
         }
         
         guard let presenter else { return UICollectionViewCell() }
-        let tracker = presenter.filteredCategories[indexPath.section].trackers[indexPath.row]
+        //let tracker = presenter.filteredCategories[indexPath.section].trackers[indexPath.row]
+        let tracker = visibleTracker[indexPath.row]
+        
         let currentDate = presenter.currentDate
         let isCompleted = presenter.isTrackerCompleted(tracker, date: presenter.currentDate)
         let completedDaysCount = presenter.countCompletedDays(for:tracker)
@@ -331,22 +339,14 @@ extension TrackerViewController: UISearchBarDelegate {
 }
 
 
-//extension TrackerViewController: TrackerStoreDelegate {
-//    func store(_ store: TrackerStore, didUpdate update: TrackerStoreUpdate) {
-////        visibleEmojiMixes = emojiMixStore.emojiMixes
-////        collectionView.performBatchUpdates {
-////            let insertedIndexPaths = update.insertedIndexes.map { IndexPath(item: $0, section: 0) }
-////            let deletedIndexPaths = update.deletedIndexes.map { IndexPath(item: $0, section: 0) }
-////            let updatedIndexPaths = update.updatedIndexes.map { IndexPath(item: $0, section: 0) }
-////            collectionView.insertItems(at: insertedIndexPaths)
-////            collectionView.insertItems(at: deletedIndexPaths)
-////            collectionView.insertItems(at: updatedIndexPaths)
-////            for move in update.movedIndexes {
-////                collectionView.moveItem(
-////                    at: IndexPath(item: move.oldIndex, section: 0),
-////                    to: IndexPath(item: move.newIndex, section: 0)
-////                )
-////            }
-////        }
-//    }
-//}
+extension TrackerViewController: TrackerStoreDelegate {
+    func store(_ store: TrackerStore, didUpdate update: TrackerStoreUpdate) {
+        visibleTracker = trackerStore.tracker
+        trackersCollectionView.performBatchUpdates {
+            let insertedIndexPaths = update.insertedIndexes.map { IndexPath(item: $0, section: 0) }
+            let deletedIndexPaths = update.deletedIndexes.map { IndexPath(item: $0, section: 0) }
+            trackersCollectionView.insertItems(at: insertedIndexPaths)
+            trackersCollectionView.insertItems(at: deletedIndexPaths)
+        }
+    }
+}
