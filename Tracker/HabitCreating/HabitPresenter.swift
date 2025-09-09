@@ -28,6 +28,7 @@ final class HabitPresenter: HabitPresenterProtocol {
     // MARK: - Constants
     
     private let trackerStore = TrackerStore()
+    private let trackerCategoryStore = TrackerCategoryStore()
     let formatter = Formatter()
     
     // MARK: - Publike Properties
@@ -100,6 +101,8 @@ final class HabitPresenter: HabitPresenterProtocol {
         let newTracker = Tracker(id: UUID(), name: name, color: selectedColor ?? .clear, emoji: selectedEmoji ?? "", schedule: schedule, date: Date())
 
         try! trackerStore.addNewTracker(newTracker)
+        try! trackerCategoryStore.addCategory(name: selectedCategory.title)
+        
         delegate?.didCreateTracker(newTracker, at: selectedCategory)
     }
     

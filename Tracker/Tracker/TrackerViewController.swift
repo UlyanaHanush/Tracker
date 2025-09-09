@@ -27,7 +27,10 @@ import UIKit
 
 final class TrackerViewController: UIViewController, TrackerTypeDelegate, HabitCreatingDelegate, TrackersViewControllerProtocol, TrackerCollectionViewCellDelegate {
     
+    // MARK: - Constants
+    
     private let trackerStore = TrackerStore()
+    private let trackerCategoryStore = TrackerCategoryStore()
     
     // MARK: - Publike Properties
     
@@ -36,6 +39,7 @@ final class TrackerViewController: UIViewController, TrackerTypeDelegate, HabitC
     // MARK: - Private Properties
     
     private var visibleTracker: [Tracker] = []
+    private var visibleTrackerCategory: [TrackerCategory] = []
     
     //  datePicker оставлен в начальном состоянии -> обсуждено с наставником
     private lazy var datePicker: UIBarButtonItem = {
@@ -170,7 +174,7 @@ final class TrackerViewController: UIViewController, TrackerTypeDelegate, HabitC
 //            presenter?.filterTrackersByDate(data)
 //        }
 //        
-//        updateEmptyScreenVisibility()
+        updateEmptyScreenVisibility()
         
         visibleTracker = trackerStore.tracker
     }
@@ -216,12 +220,15 @@ final class TrackerViewController: UIViewController, TrackerTypeDelegate, HabitC
     }
     
     private func updateEmptyScreenVisibility() {
-        guard let categories = presenter?.filteredCategories else { return }
+        //guard let categories = presenter?.filteredCategories else { return }
+        guard let categories = trackerCategoryStore.trackerCategory.first?.title else { return }
         let hasVisibleEmptyScreen = categories.isEmpty
         emptyTrackerImage.isHidden = hasVisibleEmptyScreen ? false: true
         emptyTrackerText.isHidden = hasVisibleEmptyScreen ? false: true
     }
 }
+
+// MARK: - UICollectionViewDataSource
 
 extension TrackerViewController: UICollectionViewDataSource {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
@@ -259,10 +266,15 @@ extension TrackerViewController: UICollectionViewDataSource {
             return UICollectionReusableView()
         }
         
-        view.titleLabel.text = presenter?.categories[indexPath.section].title
+        if let text = trackerCategoryStore.trackerCategory.first?.title {
+            view.titleLabel.text = text
+        }
+        //presenter?.categories[indexPath.section].title
         return view
     }
 }
+
+// MARK: - UICollectionViewDelegateFlowLayout
 
 extension TrackerViewController: UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
@@ -284,6 +296,8 @@ extension TrackerViewController: UICollectionViewDelegateFlowLayout {
         return UIEdgeInsets(top: 10, left: 0, bottom: 16, right: 0)
     }
 }
+
+// MARK: - UICollectionViewDelegate
 
 // TODO для следующих спринтов -> исправить выделение
 extension TrackerViewController: UICollectionViewDelegate {
@@ -326,6 +340,9 @@ extension TrackerViewController: UICollectionViewDelegate {
     }
 }
 
+
+// MARK: - UISearchBarDelegate
+
 extension TrackerViewController: UISearchBarDelegate {
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         presenter?.search = searchText
@@ -338,10 +355,25 @@ extension TrackerViewController: UISearchBarDelegate {
     }
 }
 
+// MARK: - TrackerStoreDelegate
 
 extension TrackerViewController: TrackerStoreDelegate {
     func store(_ store: TrackerStore, didUpdate update: TrackerStoreUpdate) {
         visibleTracker = trackerStore.tracker
+        trackersCollectionView.performBatchUpdates {
+            let insertedIndexPaths = update.insertedIndexes.map { IndexPath(item: $0, section: 0) }
+            let deletedIndexPaths = update.deletedIndexes.map { IndexPath(item: $0, section: 0) }
+            trackersCollectionView.insertItems(at: insertedIndexPaths)
+            trackersCollectionView.insertItems(at: deletedIndexPaths)
+        }
+    }
+}
+
+// MARK: - TrackerStoreDelegate
+
+extension TrackerViewController: TrackerCategoryStoreDelegate {
+    func store(_ store: TrackerCategoryStore, didUpdate update: TrackerCategoryStoreUpdate) {
+        visibleTrackerCategory = trackerCategoryStore.trackerCategory
         trackersCollectionView.performBatchUpdates {
             let insertedIndexPaths = update.insertedIndexes.map { IndexPath(item: $0, section: 0) }
             let deletedIndexPaths = update.deletedIndexes.map { IndexPath(item: $0, section: 0) }

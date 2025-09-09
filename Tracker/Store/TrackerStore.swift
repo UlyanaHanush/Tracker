@@ -31,15 +31,34 @@ protocol TrackerStoreDelegate: AnyObject {
 
 final class TrackerStore: NSObject {
     
+    // MARK: - Constants
+    
     private let context: NSManagedObjectContext
     private let uiColorMarshaling = UIColorMarshaling()
     private let daysValueTransformer = DaysValueTransformer()
     
-    private var fetchedResultsController: NSFetchedResultsController<TrackerCoreData>!
+    // MARK: - Publike Properties
+    
+    var tracker: [Tracker] {
+        guard
+            let objects = self.fetchedResultsController.fetchedObjects,
+            let tracker = try? objects.map({ try self.tracker(from: $0) })
+        else {
+            return []
+        }
+        return tracker
+    }
+    
     weak var delegate: TrackerStoreDelegate?
+    
+    // MARK: - Private Properties
+    
+    private var fetchedResultsController: NSFetchedResultsController<TrackerCoreData>!
     private var insertedIndexes: IndexSet?
     private var deletedIndexes: IndexSet?
-
+    
+    // MARK: - Initializers
+    
     convenience override init() {
         let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
         try! self.init(context: context)
@@ -64,16 +83,8 @@ final class TrackerStore: NSObject {
         try controller.performFetch()
     }
     
-    var tracker: [Tracker] {
-        guard
-            let objects = self.fetchedResultsController.fetchedObjects,
-            let tracker = try? objects.map({ try self.tracker(from: $0) })
-        else {
-            return []
-        }
-        return tracker
-    }
-
+    // MARK: - Publike Methods
+    
     func addNewTracker(_ tracker: Tracker) throws {
         let trackerCoreData = TrackerCoreData(context: context)
         updateExistingTracker(trackerCoreData, with: tracker)
@@ -87,7 +98,9 @@ final class TrackerStore: NSObject {
         }
     }
 
-    func updateExistingTracker(_ trackerCoreData: TrackerCoreData, with tracker: Tracker) {
+    // MARK: - Private Methods
+    
+    private func updateExistingTracker(_ trackerCoreData: TrackerCoreData, with tracker: Tracker) {
         trackerCoreData.name = tracker.name
         trackerCoreData.color = uiColorMarshaling.hexString(from: tracker.color)
         trackerCoreData.emoji = tracker.emoji
@@ -96,7 +109,7 @@ final class TrackerStore: NSObject {
         trackerCoreData.schedule = daysValueTransformer.transformedValue(tracker.schedule) as? NSObject
     }
 
-    func tracker(from trackerCoreData: TrackerCoreData) throws -> Tracker {
+    private func tracker(from trackerCoreData: TrackerCoreData) throws -> Tracker {
         guard let name = trackerCoreData.name else {
             throw TrackerStoreError.decodingErrorInvalidName
         }
@@ -127,6 +140,8 @@ final class TrackerStore: NSObject {
         )
     }
 }
+
+// MARK: - NSFetchedResultsControllerDelegate
 
 extension TrackerStore: NSFetchedResultsControllerDelegate {
     func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {

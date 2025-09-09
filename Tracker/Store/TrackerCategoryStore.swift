@@ -9,43 +9,144 @@ import CoreData
 import UIKit
 
 enum TrackerCategoryStoreError: Error {
+    case decodingErrorInvalidTrackerCategoryData
+    case createCategoryError
     case decodingErrorInvalidTitle
 }
 
-final class TrackerCategoryStore {
+protocol TrackerCategoryStoreDelegate: AnyObject {
+    func store(
+        _ store: TrackerCategoryStore,
+        didUpdate update: TrackerCategoryStoreUpdate
+    )
+}
+
+struct TrackerCategoryStoreUpdate {
+    let insertedIndexes: IndexSet
+    let deletedIndexes: IndexSet
+}
+
+class TrackerCategoryStore: NSObject {
+    
+    // MARK: - Constants
     
     private let context: NSManagedObjectContext
-
-    convenience init() {
-        let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
-        self.init(context: context)
-    }
-
-    init(context: NSManagedObjectContext) {
-        self.context = context
+    
+    // MARK: - Publike Properties
+    
+    var trackerCategory: [TrackerCategory] {
+        guard
+            let objects = self.fetchedResultsController.fetchedObjects,
+            let trackerCategory = try? objects.map({ try self.trackerCategory(from: $0) })
+        else {
+            return []
+        }
+        return trackerCategory
     }
     
-//    func fetchTrackerCategory() throws -> [TrackerCategory] {
-//        let fetchRequest = TrackerCategoryCoreData.fetchRequest()
-//        let trackerCategoryFromCoreData = try context.fetch(fetchRequest)
-//        return try trackerCategoryFromCoreData.map { try self.trackerCategory(from: $0) }
-//    }
-
-    func addNewTrackerCategory(_ trackerCategory: TrackerCategory) throws {
-        let trackerCategoryCoreData = TrackerCategoryCoreData(context: context)
-        updateExistingTrackerCategory(trackerCategoryCoreData, with: trackerCategory)
-        try context.save()
+    weak var delegate: TrackerCategoryStoreDelegate?
+    
+    // MARK: - Private Properties
+    
+    private var fetchedResultsController: NSFetchedResultsController<TrackerCategoryCoreData>!
+    private var insertedIndexes: IndexSet?
+    private var deletedIndexes: IndexSet?
+    
+    // MARK: - Initializers
+    
+    convenience override init() {
+        let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+        try! self.init(context: context)
     }
 
-    func updateExistingTrackerCategory(_ trackerCategoryCoreData: TrackerCategoryCoreData, with trackerCategory: TrackerCategory) {
-        trackerCategoryCoreData.title = trackerCategory.title
+    init(context: NSManagedObjectContext) throws {
+        self.context = context
+        super.init()
+        
+        let fetchRequest = TrackerCategoryCoreData.fetchRequest()
+        fetchRequest.sortDescriptors = [
+            NSSortDescriptor(keyPath: \TrackerCategoryCoreData.title, ascending: true)
+        ]
+        let controller = NSFetchedResultsController(
+            fetchRequest: fetchRequest,
+            managedObjectContext: context,
+            sectionNameKeyPath: nil,
+            cacheName: nil
+        )
+        controller.delegate = self
+        self.fetchedResultsController = controller
+        try controller.performFetch()
     }
+    
+    // MARK: - Public Methods
+    
+    func trackerCategory(from trackerCategoryCoreData: TrackerCategoryCoreData) throws -> TrackerCategory {
+        guard let title = trackerCategoryCoreData.title else {
+            throw TrackerCategoryStoreError.decodingErrorInvalidTitle
+        }
+        
+        return TrackerCategory(
+            //TODO нужно будет добавить связь
+            title: title,
+            trackers: []
+        )
+    }
+    
+    func addCategory(name: String) throws {
+        do {
+            let trackerCategoryCoreData = TrackerCategoryCoreData(context: context)
+            trackerCategoryCoreData.title = name
+            trackerCategoryCoreData.trackers = []
+            if context.hasChanges {
+                do {
+                    try context.save()
+                    print("\(#file):\(#line)] \(#function) Сохранена категория: \(name)")
+                } catch {
+                    let nsError = error as NSError
+                    print("\(#file):\(#line)] \(#function) Ошибка сохранения категории")
+                    fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
+                }
+            }
+        }
+    }
+}
 
-//    func trackerCategory(from trackerCategoryCoreData: TrackerCategoryCoreData) throws -> TrackerCategory {
-//        guard let title = trackerCategoryCoreData.title else {
-//            throw TrackerCategoryStoreError.decodingErrorInvalidTitle
-//        }
-//        
-//        return TrackerCategory(title: title, trackers: [Tracker])
-//    }
+// MARK: - NSFetchedResultsControllerDelegate
+
+extension TrackerCategoryStore: NSFetchedResultsControllerDelegate {
+    func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+        insertedIndexes = IndexSet()
+        deletedIndexes = IndexSet()
+    }
+    
+    func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+        delegate?.store(
+            self,
+            didUpdate: TrackerCategoryStoreUpdate(
+                insertedIndexes: insertedIndexes!,
+                deletedIndexes: deletedIndexes!
+            )
+        )
+        insertedIndexes = nil
+        deletedIndexes = nil
+    }
+    
+    func controller(
+        _ controller: NSFetchedResultsController<NSFetchRequestResult>,
+        didChange anObject: Any,
+        at indexPath: IndexPath?,
+        for type: NSFetchedResultsChangeType,
+        newIndexPath: IndexPath?
+    ) {
+        switch type {
+        case .insert:
+            guard let indexPath = newIndexPath else { fatalError() }
+            insertedIndexes?.insert(indexPath.item)
+        case .delete:
+            guard let indexPath = indexPath else { fatalError() }
+            deletedIndexes?.insert(indexPath.item)
+        default:
+            break
+        }
+    }
 }

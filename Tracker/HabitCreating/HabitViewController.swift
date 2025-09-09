@@ -323,6 +323,8 @@ extension HabitViewController: UITableViewDataSource {
     }
 }
 
+// MARK: - UIViewController 
+
 extension UIViewController {
     func hideKeyboardOnTap() {
         let tap = UITapGestureRecognizer(target: self, action: #selector(UIViewController.dismissKeyboard))
@@ -394,6 +396,8 @@ extension HabitViewController: UICollectionViewDataSource {
     }
 }
 
+// MARK: - UICollectionViewDelegateFlowLayout
+
 extension HabitViewController: UICollectionViewDelegateFlowLayout {
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, referenceSizeForHeaderInSection section: Int) -> CGSize {
@@ -404,6 +408,8 @@ extension HabitViewController: UICollectionViewDelegateFlowLayout {
         return CGSize(width: 48, height: 48)
     }
 }
+
+// MARK: - UICollectionViewDelegate
 
 extension HabitViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
