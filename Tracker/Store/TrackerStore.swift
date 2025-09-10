@@ -44,6 +44,7 @@ final class TrackerStore: NSObject {
             let objects = self.fetchedResultsController.fetchedObjects,
             let tracker = try? objects.map({ try self.tracker(from: $0) })
         else {
+            print("\(#file):\(#line)] \(#function) Ошибка получения tracker")
             return []
         }
         return tracker

@@ -9,8 +9,6 @@ import CoreData
 import UIKit
 
 enum TrackerCategoryStoreError: Error {
-    case decodingErrorInvalidTrackerCategoryData
-    case createCategoryError
     case decodingErrorInvalidTitle
 }
 
@@ -39,6 +37,7 @@ class TrackerCategoryStore: NSObject {
             let objects = self.fetchedResultsController.fetchedObjects,
             let trackerCategory = try? objects.map({ try self.trackerCategory(from: $0) })
         else {
+            print("\(#file):\(#line)] \(#function) Ошибка получения trackerCategory")
             return []
         }
         return trackerCategory

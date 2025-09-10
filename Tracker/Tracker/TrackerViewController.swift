@@ -31,6 +31,7 @@ final class TrackerViewController: UIViewController, TrackerTypeDelegate, HabitC
     
     private let trackerStore = TrackerStore()
     private let trackerCategoryStore = TrackerCategoryStore()
+    private let trackerRecordStore = TrackerRecordStore()
     
     // MARK: - Publike Properties
     
@@ -40,6 +41,7 @@ final class TrackerViewController: UIViewController, TrackerTypeDelegate, HabitC
     
     private var visibleTracker: [Tracker] = []
     private var visibleTrackerCategory: [TrackerCategory] = []
+    private var visibleTrackerRecord: [TrackerRecord] = []
     
     //  datePicker оставлен в начальном состоянии -> обсуждено с наставником
     private lazy var datePicker: UIBarButtonItem = {
@@ -374,6 +376,20 @@ extension TrackerViewController: TrackerStoreDelegate {
 extension TrackerViewController: TrackerCategoryStoreDelegate {
     func store(_ store: TrackerCategoryStore, didUpdate update: TrackerCategoryStoreUpdate) {
         visibleTrackerCategory = trackerCategoryStore.trackerCategory
+        trackersCollectionView.performBatchUpdates {
+            let insertedIndexPaths = update.insertedIndexes.map { IndexPath(item: $0, section: 0) }
+            let deletedIndexPaths = update.deletedIndexes.map { IndexPath(item: $0, section: 0) }
+            trackersCollectionView.insertItems(at: insertedIndexPaths)
+            trackersCollectionView.insertItems(at: deletedIndexPaths)
+        }
+    }
+}
+
+// MARK: - TrackerRecordDelegate
+
+extension TrackerViewController: TrackerRecordStoreDelegate {
+    func store(_ store: TrackerRecordStore, didUpdate update: TrackerRecordStoreUpdate) {
+        visibleTrackerRecord = trackerRecordStore.trackerRecord
         trackersCollectionView.performBatchUpdates {
             let insertedIndexPaths = update.insertedIndexes.map { IndexPath(item: $0, section: 0) }
             let deletedIndexPaths = update.deletedIndexes.map { IndexPath(item: $0, section: 0) }
