@@ -254,7 +254,8 @@ extension TrackerViewController: UICollectionViewDataSource {
         let tracker = visibleTracker[indexPath.row]
         
         let currentDate = presenter.currentDate
-        let isCompleted = presenter.isTrackerCompleted(tracker, date: presenter.currentDate)
+        let isCompleted = !presenter.isTrackerEmpty(tracker, date: presenter.currentDate)
+      
         let completedDaysCount = presenter.countCompletedDays(for:tracker)
         cell.delegate = self
         

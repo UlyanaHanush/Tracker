@@ -99,7 +99,6 @@ class TrackerCategoryStore: NSObject {
             if context.hasChanges {
                 do {
                     try context.save()
-                    print("\(#file):\(#line)] \(#function) Сохранена категория: \(name)")
                 } catch {
                     let nsError = error as NSError
                     print("\(#file):\(#line)] \(#function) Ошибка сохранения категории")

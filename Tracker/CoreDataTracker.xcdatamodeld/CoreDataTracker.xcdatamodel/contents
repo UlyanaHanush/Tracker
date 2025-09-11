@@ -15,8 +15,8 @@
         <relationship name="trackersRecord" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="TrackerRecordCoreData" inverseName="trackers" inverseEntity="TrackerRecordCoreData"/>
     </entity>
     <entity name="TrackerRecordCoreData" representedClassName="TrackerRecordCoreData" syncable="YES" codeGenerationType="class">
-        <attribute name="data" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
-        <attribute name="id" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
+        <attribute name="recordData" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="recordId" optional="YES" attributeType="UUID" usesScalarValueType="NO"/>
         <relationship name="trackers" toMany="YES" deletionRule="Nullify" destinationEntity="TrackerCoreData" inverseName="trackersRecord" inverseEntity="TrackerCoreData"/>
     </entity>
 </model>

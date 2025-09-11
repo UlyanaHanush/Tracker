@@ -11,6 +11,7 @@ import UIKit
 enum TrackerRecordStoreError: Error {
     case decodingErrorInvalidId
     case decodingErrorInvalidDate
+    case deleteRecordError
 }
 
 protocol TrackerRecordStoreDelegate: AnyObject {
@@ -65,7 +66,7 @@ final class TrackerRecordStore: NSObject {
         
         let fetchRequest = TrackerRecordCoreData.fetchRequest()
         fetchRequest.sortDescriptors = [
-            NSSortDescriptor(keyPath: \TrackerRecordCoreData.id, ascending: true)
+            NSSortDescriptor(keyPath: \TrackerRecordCoreData.recordId, ascending: true)
         ]
         let controller = NSFetchedResultsController(
             fetchRequest: fetchRequest,
@@ -81,11 +82,11 @@ final class TrackerRecordStore: NSObject {
     // MARK: - Public Methods
     
     func trackerRecord(from trackerRecordCoreData: TrackerRecordCoreData) throws -> TrackerRecord {
-        guard let id = trackerRecordCoreData.id else {
+        guard let id = trackerRecordCoreData.recordId else {
             throw TrackerRecordStoreError.decodingErrorInvalidId
         }
         
-        guard let data = trackerRecordCoreData.data else {
+        guard let data = trackerRecordCoreData.recordData else {
             throw TrackerRecordStoreError.decodingErrorInvalidDate
         }
         
@@ -96,25 +97,10 @@ final class TrackerRecordStore: NSObject {
     }
     
     func addRecord(_ trackerRecord: TrackerRecord) throws {
-        do {
-            let trackerRecordCoreData = TrackerRecordCoreData(context: context)
-            trackerRecordCoreData.id = trackerRecord.id
-            trackerRecordCoreData.data = trackerRecord.date
-            if context.hasChanges {
-                do {
-                    try context.save()
-                } catch {
-                    let nsError = error as NSError
-                    print("\(#file):\(#line)] \(#function) Ошибка сохранения категории")
-                    fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
-                }
-            }
-        }
-    }
-    
-    func deleteRecord(_ record: NSManagedObject, at indexPath: IndexPath) throws {
-        let record = fetchedResultsController.object(at: indexPath)
-        context.delete(record)
+        let trackerRecordCoreData = TrackerRecordCoreData(context: context)
+        trackerRecordCoreData.recordId = trackerRecord.id
+        
+        trackerRecordCoreData.recordData = trackerRecord.date
         if context.hasChanges {
             do {
                 try context.save()
@@ -124,6 +110,52 @@ final class TrackerRecordStore: NSObject {
                 fatalError("Unresolved error \(nsError), \(nsError.userInfo)")
             }
         }
+    }
+    
+    func deleteRecord(_ trackerRecord: TrackerRecord) throws {
+        let request = NSFetchRequest<TrackerRecordCoreData>(entityName: "TrackerRecordCoreData")
+        
+        let idPredicate = NSPredicate(format: "%K == %@", #keyPath(TrackerRecordCoreData.recordId), trackerRecord.id.uuidString)
+        let datePredicate = NSPredicate(format: "%K == %@", #keyPath(TrackerRecordCoreData.recordData), trackerRecord.date as NSDate)
+        request.predicate = NSCompoundPredicate(type: .and, subpredicates: [idPredicate, datePredicate])
+        
+        if let existingTracker = try? context.fetch(request).first {
+            do {
+                context.delete(existingTracker)
+                try context.save()
+            } catch {
+                print("\(#file):\(#line)] \(#function) Ошибка удаления TrackerRecord")
+                throw TrackerRecordStoreError.deleteRecordError
+            }
+        }
+    }
+    
+    func countCompletedDays(for tracker: Tracker) -> Int {
+        let request = NSFetchRequest<TrackerRecordCoreData>(entityName: "TrackerRecordCoreData")
+        request.returnsObjectsAsFaults = false
+        let idPredicate = NSPredicate(format: "%K == %@", #keyPath(TrackerRecordCoreData.recordId), tracker.id.uuidString)
+        
+        request.predicate = idPredicate
+        let trackerRecord = try! context.fetch(request)
+        
+        let countCompletedDays = trackerRecord.count
+        return countCompletedDays
+    }
+    
+    func isTrackerEmpty(_ trackerRecord : TrackerRecord) -> Bool {
+        let request = NSFetchRequest<TrackerRecordCoreData>(entityName: "TrackerRecordCoreData")
+        
+        let tracker = try? context.fetch(request)
+        
+        let idPredicate = NSPredicate(format: "%K == %@", #keyPath(TrackerRecordCoreData.recordId), trackerRecord.id.uuidString)
+        let datePredicate = NSPredicate(format: "%K == %@", #keyPath(TrackerRecordCoreData.recordData), trackerRecord.date as NSDate)
+        request.predicate = NSCompoundPredicate(type: .and, subpredicates: [idPredicate, datePredicate])
+        
+        let completedTrackers = try! context.fetch(request)
+        //print(completedTrackers.first?.recordData ?? "")
+        
+        let isTrackerCompleted = completedTrackers.isEmpty
+        return isTrackerCompleted
     }
 }
 

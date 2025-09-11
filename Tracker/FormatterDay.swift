@@ -20,10 +20,11 @@ final class Formatter {
 }
 
 extension Date {
-    var ignoringTime: Date? {
+    var ignoringTime: Date {
         var calendar = Calendar.current
         calendar.locale = Locale(identifier: "ru_RU")
         let dateComponents = Calendar.current.dateComponents([.day, .month, .year], from: self)
-        return calendar.date(from: dateComponents)
+        guard let onlyDay = calendar.date(from: dateComponents) else { return Date()}
+        return onlyDay
     }
 }

@@ -22,6 +22,7 @@ final class TrackersPresenter: TrackersPresenterProtocol {
     let formatter = Formatter()
     
     private let trackerStore = TrackerStore()
+    private let trackerRecordStore = TrackerRecordStore()
     
     // MARK: - Publike Properties
     
@@ -29,7 +30,7 @@ final class TrackersPresenter: TrackersPresenterProtocol {
     var completedTrackers: Set<TrackerRecord> = []
     var categories: [TrackerCategory] = []
     var search: String = ""
-    var currentDate: Date = Date()
+    var currentDate: Date = Date().ignoringTime
     var filteredCategories: [TrackerCategory] = []
     
     var visibleTracker: [Tracker] = []
@@ -72,20 +73,24 @@ final class TrackersPresenter: TrackersPresenterProtocol {
     }
     
     func completeTracker(_ tracker: Tracker, date: Date) {
-        if isTrackerCompleted(tracker, date: date) {
-            removeFromCompletedTrackers(tracker: tracker, date: currentDate)
-        } else {
+        if isTrackerEmpty(tracker, date: date) {
             addToCompletedTrackers(tracker: tracker, date: currentDate)
+        } else {
+            removeFromCompletedTrackers(tracker: tracker, date: currentDate)
         }
     }
     
     func countCompletedDays(for tracker: Tracker) -> Int {
-        completedTrackers.filter({ $0.id == tracker.id }).count
+        trackerRecordStore.countCompletedDays(for: tracker)
+        
+        //completedTrackers.filter({ $0.id == tracker.id }).count
     }
     
-    func isTrackerCompleted(_ tracker: Tracker, date: Date) -> Bool {
+    func isTrackerEmpty(_ tracker: Tracker, date: Date) -> Bool {
         let trackerRecord = TrackerRecord(id: tracker.id, date: date)
-        return completedTrackers.contains(trackerRecord)
+        return trackerRecordStore.isTrackerEmpty(trackerRecord)
+        
+       //return completedTrackers.contains(trackerRecord)
     }
     
     func filterTrackersByDate(_ date: Date) {
@@ -118,11 +123,15 @@ final class TrackersPresenter: TrackersPresenterProtocol {
     
     private func addToCompletedTrackers(tracker: Tracker, date: Date) {
         let trackerRecord = TrackerRecord(id: tracker.id, date: date)
-        completedTrackers.insert(trackerRecord )
+        try! trackerRecordStore.addRecord(trackerRecord)
+        
+        //completedTrackers.insert(trackerRecord )
     }
     
     private func removeFromCompletedTrackers(tracker: Tracker, date: Date) {
         let trackerRecord = TrackerRecord(id: tracker.id, date: date)
-        completedTrackers.remove(trackerRecord)
+        try! trackerRecordStore.deleteRecord(trackerRecord)
+        
+        //completedTrackers.remove(trackerRecord)
     }
 }
