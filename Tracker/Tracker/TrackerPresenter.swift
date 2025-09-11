@@ -10,7 +10,7 @@ import Foundation
 protocol TrackersPresenterProtocol {
     var view: TrackersViewControllerProtocol? { get }
     var categories: [TrackerCategory] { get }
-    var completedTrackers: Set<TrackerRecord> { get set }
+    //var completedTrackers: Set<TrackerRecord> { get set }
     func addTracker(_ tracker: Tracker, at category: TrackerCategory)
     func filterTrackersByDate(_ date: Date)
 }
@@ -23,11 +23,12 @@ final class TrackersPresenter: TrackersPresenterProtocol {
     
     private let trackerStore = TrackerStore()
     private let trackerRecordStore = TrackerRecordStore()
+    private let trackerCategoryStore = TrackerCategoryStore()
     
     // MARK: - Publike Properties
     
     weak var view: TrackersViewControllerProtocol?
-    var completedTrackers: Set<TrackerRecord> = []
+    //var completedTrackers: Set<TrackerRecord> = []
     var categories: [TrackerCategory] = []
     var search: String = ""
     var currentDate: Date = Date().ignoringTime
@@ -52,23 +53,27 @@ final class TrackersPresenter: TrackersPresenterProtocol {
     // MARK: - Publike Methods
     
     func addTracker(_ tracker: Tracker, at category: TrackerCategory) {
-        var trackers = category.trackers
-        trackers.append(tracker)
         
-        let newCategory = TrackerCategory(title: category.title, trackers: trackers)
+        try! trackerStore.addNewTracker(tracker)
+        try! trackerCategoryStore.addCategory(name: category.title)
         
-        var categories = self.categories
+        //var trackers = category.trackers
+        //trackers.append(tracker)
         
-        if let index = categories.firstIndex(where: { $0.title == category.title } ) {
-            categories[index] = newCategory
-        } else {
-            categories.append(newCategory)
-        }
-        self.categories = categories
+        //let newCategory = TrackerCategory(title: category.title, trackers: trackers)
         
-        filterTrackersByDate(currentDate)
+       // var categories = self.categories
         
-        //try! trackerStore.addNewTracker(tracker)
+//        if let index = categories.firstIndex(where: { $0.title == category.title } ) {
+//            categories[index] = newCategory
+//        } else {
+//            categories.append(newCategory)
+//        }
+//        self.categories = categories
+        
+       // filterTrackersByDate(currentDate)
+        
+        
         view?.didAddTracker()
     }
     

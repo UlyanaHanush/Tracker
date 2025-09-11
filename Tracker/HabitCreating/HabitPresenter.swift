@@ -98,10 +98,10 @@ final class HabitPresenter: HabitPresenterProtocol {
         guard let name = trackerName, let selectedCategory else { return }
         
         //let data = formatter.dateFormatter.string(from: Date())
-        let newTracker = Tracker(id: UUID(), name: name, color: selectedColor ?? .clear, emoji: selectedEmoji ?? "", schedule: schedule, date: Date())
+        let newTracker = Tracker(id: UUID(), name: name, color: selectedColor ?? .clear, emoji: selectedEmoji ?? "", schedule: schedule, date: Date().ignoringTime)
 
-        try! trackerStore.addNewTracker(newTracker)
-        try! trackerCategoryStore.addCategory(name: selectedCategory.title)
+       // try! trackerStore.addNewTracker(newTracker)
+        //try! trackerCategoryStore.addCategory(name: selectedCategory.title)
         
         delegate?.didCreateTracker(newTracker, at: selectedCategory)
     }
@@ -110,6 +110,8 @@ final class HabitPresenter: HabitPresenterProtocol {
         let sortedWeekDays = schedule.sorted { day1, day2 in
             day1.rawValue < day2.rawValue
         }
+        print(schedule)
+        
         let weekDaysShortForm = sortedWeekDays.map { $0.shortForm }.joined(separator: ", ")
         
         let isAllDay: Bool = sortedWeekDays.count == 7 ? true : false

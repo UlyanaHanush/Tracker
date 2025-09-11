@@ -250,7 +250,9 @@ extension TrackerViewController: UICollectionViewDataSource {
         }
         
         guard let presenter else { return UICollectionViewCell() }
+        
         //let tracker = presenter.filteredCategories[indexPath.section].trackers[indexPath.row]
+        
         let tracker = visibleTracker[indexPath.row]
         
         let currentDate = presenter.currentDate

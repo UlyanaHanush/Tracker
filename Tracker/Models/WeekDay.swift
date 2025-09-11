@@ -16,7 +16,7 @@ enum WeekDay: Int, CaseIterable, Codable {
     case friday = 4
     case saturday = 5
     
-    var shortName: String {
+    var fullName: String {
         switch self {
         case .sunday: return "Воскресенье"
         case .monday: return "Понедельник"

@@ -140,6 +140,10 @@ final class TrackerStore: NSObject {
             date: date
         )
     }
+    
+    func filterTrackersByDate(_ date: Date) {
+        
+    }
 }
 
 // MARK: - NSFetchedResultsControllerDelegate
