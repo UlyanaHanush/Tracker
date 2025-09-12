@@ -98,6 +98,19 @@ final class TrackerStore: NSObject {
             }
         }
     }
+    
+    func filterTrackersByDate(_ tracker: Tracker, _ date: Date) {
+        let weekDay = weekDay(from: date)
+        let request = NSFetchRequest<TrackerCoreData>(entityName: "TrackerCoreData")
+        
+        //let schedulePredicate = NSPredicate(format: "TrackerCoreData.schedule IN %@", weekDay as! CVarArg)
+        //let schedulePredicate = NSPredicate(format: "SUBQUERY(TrackerCoreData.schedule, $item, $item.someProperty == %d).count > 0", 123)
+        //let datePredicate = NSPredicate(format: "%K == %@", #keyPath(TrackerCoreData.date), date.ignoringTime as NSDate)
+        //request.predicate = NSCompoundPredicate(type: .and, subpredicates: [schedulePredicate, datePredicate])
+        //request.predicate = schedulePredicate
+        
+        let tracker = try! context.fetch(request)
+    }
 
     // MARK: - Private Methods
     
@@ -129,7 +142,6 @@ final class TrackerStore: NSObject {
         guard let schedule = trackerCoreData.schedule as? [WeekDay] else {
             throw TrackerStoreError.decodingErrorInvalidSchedule
         }
-        print(schedule)
         return Tracker(
             id: id,
             name: name,
@@ -138,6 +150,14 @@ final class TrackerStore: NSObject {
             schedule: schedule,
             date: date
         )
+    }
+    
+    private func weekDay(from date: Date) -> WeekDay {
+        let calendar = Calendar.current
+        let weekday = calendar.component(.weekday, from: date)
+        let adjustedWeekday = AdjustedWeekday(rawValue: weekday)
+        guard let weekDayForm = adjustedWeekday?.weekDayForm else { return WeekDay.monday }
+        return weekDayForm
     }
 }
 

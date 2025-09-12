@@ -98,9 +98,6 @@ final class HabitPresenter: HabitPresenterProtocol {
         guard let name = trackerName, let selectedCategory else { return }
         
         let newTracker = Tracker(id: UUID(), name: name, color: selectedColor ?? .clear, emoji: selectedEmoji ?? "", schedule: schedule, date: Date().ignoringTime)
-
-       // try! trackerStore.addNewTracker(newTracker)
-        //try! trackerCategoryStore.addCategory(name: selectedCategory.title)
         
         delegate?.didCreateTracker(newTracker, at: selectedCategory)
     }

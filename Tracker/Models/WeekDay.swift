@@ -16,18 +16,6 @@ enum WeekDay: Int, CaseIterable, Codable {
     case friday = 4
     case saturday = 5
     
-    var fullName: String {
-        switch self {
-        case .sunday: return "Воскресенье"
-        case .monday: return "Понедельник"
-        case .tuesday: return "Вторник"
-        case .wednesday: return "Среда"
-        case .thursday: return "Четверг"
-        case .friday: return "Пятница"
-        case .saturday: return "Суббота"
-        }
-    }
-    
     var shortForm: String {
         switch self {
         case .sunday: return "Вс"

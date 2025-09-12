@@ -10,7 +10,6 @@ import Foundation
 protocol TrackersPresenterProtocol {
     var view: TrackersViewControllerProtocol? { get }
     var categories: [TrackerCategory] { get }
-    //var completedTrackers: Set<TrackerRecord> { get set }
     func addTracker(_ tracker: Tracker, at category: TrackerCategory)
     func filterTrackersByDate(_ date: Date)
 }
@@ -28,7 +27,6 @@ final class TrackersPresenter: TrackersPresenterProtocol {
     // MARK: - Publike Properties
     
     weak var view: TrackersViewControllerProtocol?
-    //var completedTrackers: Set<TrackerRecord> = []
     var categories: [TrackerCategory] = []
     var search: String = ""
     var currentDate: Date = Date().ignoringTime
@@ -57,22 +55,7 @@ final class TrackersPresenter: TrackersPresenterProtocol {
         try! trackerStore.addNewTracker(tracker)
         try! trackerCategoryStore.addCategory(name: category.title)
         
-        //var trackers = category.trackers
-        //trackers.append(tracker)
-        
-        //let newCategory = TrackerCategory(title: category.title, trackers: trackers)
-        
-       // var categories = self.categories
-        
-//        if let index = categories.firstIndex(where: { $0.title == category.title } ) {
-//            categories[index] = newCategory
-//        } else {
-//            categories.append(newCategory)
-//        }
-//        self.categories = categories
-        
-       // filterTrackersByDate(currentDate)
-        
+        //TODO: filterTrackersByDate(currentDate)
         
         view?.didAddTracker()
     }
@@ -87,56 +70,44 @@ final class TrackersPresenter: TrackersPresenterProtocol {
     
     func countCompletedDays(for tracker: Tracker) -> Int {
         trackerRecordStore.countCompletedDays(for: tracker)
-        
-        //completedTrackers.filter({ $0.id == tracker.id }).count
     }
     
     func isTrackerEmpty(_ tracker: Tracker, date: Date) -> Bool {
         let trackerRecord = TrackerRecord(id: tracker.id, date: date)
         return trackerRecordStore.isTrackerEmpty(trackerRecord)
-        
-       //return completedTrackers.contains(trackerRecord)
     }
     
     func filterTrackersByDate(_ date: Date) {
-        let calendar = Calendar.current
-        let weekday = calendar.component(.weekday, from: date)
-        let adjustedWeekday = AdjustedWeekday(rawValue: weekday)
+        let trackers = trackerStore.tracker
+        guard let filteredTitle = trackerCategoryStore.trackerCategory.first?.title else { return }
         
-        let currentDate = formatter.dateFormatter.string(from: date)
-        
-        var filter: [TrackerCategory] = []
-        
-        if let weekDayForm = adjustedWeekday?.weekDayForm {
-            categories.forEach { category in
-                let filteredTitle = category.title
-
-                let filteredTrackers = category.trackers.filter { tracker in
-                    tracker.schedule.count == 0 && formatter.dateFormatter.string(from: tracker.date) == currentDate || tracker.schedule.contains(weekDayForm)
-                }
-                
-                if !filteredTrackers.isEmpty {
-                    filter.append(TrackerCategory(title: filteredTitle, trackers: filteredTrackers))
-                }
-            }
+        let filteredTrackers = trackers.filter { tracker in
+            tracker.schedule.count == 0 && tracker.date == date.ignoringTime || tracker.schedule.contains(weekDay(from: date))
         }
-        self.filteredCategories = filter
+
+        
+        self.filteredCategories = [TrackerCategory(title: filteredTitle, trackers: filteredTrackers)]
+        
         view?.didFilterTrackersByDate()
     }
-
+    
     // MARK: - Private Methods
     
     private func addToCompletedTrackers(tracker: Tracker, date: Date) {
         let trackerRecord = TrackerRecord(id: tracker.id, date: date)
         try! trackerRecordStore.addRecord(trackerRecord)
-        
-        //completedTrackers.insert(trackerRecord )
     }
     
     private func removeFromCompletedTrackers(tracker: Tracker, date: Date) {
         let trackerRecord = TrackerRecord(id: tracker.id, date: date)
         try! trackerRecordStore.deleteRecord(trackerRecord)
-        
-        //completedTrackers.remove(trackerRecord)
+    }
+    
+    private func weekDay(from date: Date) -> WeekDay {
+        let calendar = Calendar.current
+        let weekday = calendar.component(.weekday, from: date)
+        let adjustedWeekday = AdjustedWeekday(rawValue: weekday)
+        guard let weekDayForm = adjustedWeekday?.weekDayForm else { return WeekDay.monday }
+        return weekDayForm
     }
 }

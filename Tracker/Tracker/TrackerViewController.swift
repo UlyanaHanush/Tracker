@@ -98,6 +98,7 @@ final class TrackerViewController: UIViewController, TrackerTypeDelegate, HabitC
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
 
         trackerStore.delegate = self
         addSubviews()
@@ -172,10 +173,10 @@ final class TrackerViewController: UIViewController, TrackerTypeDelegate, HabitC
         setupConstraints()
         setupNavigationBar()
         
-//        if let data = presenter?.currentDate {
-//            presenter?.filterTrackersByDate(data)
-//        }
-//        
+        if let data = presenter?.currentDate {
+            presenter?.filterTrackersByDate(data)
+        }
+        
         updateEmptyScreenVisibility()
         
         visibleTracker = trackerStore.tracker
@@ -252,7 +253,6 @@ extension TrackerViewController: UICollectionViewDataSource {
         guard let presenter else { return UICollectionViewCell() }
         
         //let tracker = presenter.filteredCategories[indexPath.section].trackers[indexPath.row]
-        
         let tracker = visibleTracker[indexPath.row]
         
         let currentDate = presenter.currentDate
@@ -262,6 +262,9 @@ extension TrackerViewController: UICollectionViewDataSource {
         cell.delegate = self
         
         cell.configure(with: tracker, currentDate: currentDate, completedDaysCount: completedDaysCount, isCompleted: isCompleted)
+        
+        trackerStore.filterTrackersByDate(tracker, Date())
+        
         return cell
     }
     
@@ -274,7 +277,6 @@ extension TrackerViewController: UICollectionViewDataSource {
         if let text = trackerCategoryStore.trackerCategory.first?.title {
             view.titleLabel.text = text
         }
-        //presenter?.categories[indexPath.section].title
         return view
     }
 }
