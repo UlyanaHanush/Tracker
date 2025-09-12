@@ -107,7 +107,7 @@ final class TrackerStore: NSObject {
         trackerCoreData.emoji = tracker.emoji
         trackerCoreData.id = tracker.id
         trackerCoreData.date = tracker.date
-        trackerCoreData.schedule = daysValueTransformer.transformedValue(tracker.schedule) as? NSObject
+        trackerCoreData.schedule = tracker.schedule as NSObject
     }
 
     private func tracker(from trackerCoreData: TrackerCoreData) throws -> Tracker {
@@ -126,23 +126,18 @@ final class TrackerStore: NSObject {
         guard let date = trackerCoreData.date else {
             throw TrackerStoreError.decodingErrorInvalidDate
         }
-//        guard let schedule = trackerCoreData.schedule else {
-//            print("dead6")
-//            throw TrackerStoreError.decodingErrorInvalidSchedule
-//        }
-        
+        guard let schedule = trackerCoreData.schedule as? [WeekDay] else {
+            throw TrackerStoreError.decodingErrorInvalidSchedule
+        }
+        print(schedule)
         return Tracker(
             id: id,
             name: name,
             color: uiColorMarshaling.color(from: color),
             emoji: emoji,
-            schedule: [WeekDay.monday], //  daysValueTransformer.reverseTransformedValue(schedule) as? [WeekDay] ??
+            schedule: schedule,
             date: date
         )
-    }
-    
-    func filterTrackersByDate(_ date: Date) {
-        
     }
 }
 

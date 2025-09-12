@@ -97,7 +97,6 @@ final class HabitPresenter: HabitPresenterProtocol {
     func createNewTracker() {
         guard let name = trackerName, let selectedCategory else { return }
         
-        //let data = formatter.dateFormatter.string(from: Date())
         let newTracker = Tracker(id: UUID(), name: name, color: selectedColor ?? .clear, emoji: selectedEmoji ?? "", schedule: schedule, date: Date().ignoringTime)
 
        // try! trackerStore.addNewTracker(newTracker)
@@ -110,7 +109,6 @@ final class HabitPresenter: HabitPresenterProtocol {
         let sortedWeekDays = schedule.sorted { day1, day2 in
             day1.rawValue < day2.rawValue
         }
-        print(schedule)
         
         let weekDaysShortForm = sortedWeekDays.map { $0.shortForm }.joined(separator: ", ")
         
