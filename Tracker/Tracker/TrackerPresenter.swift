@@ -52,8 +52,8 @@ final class TrackersPresenter: TrackersPresenterProtocol {
     
     func addTracker(_ tracker: Tracker, at category: TrackerCategory) {
         
-//        try! trackerStore.addNewTracker(tracker)
-//        try! trackerCategoryStore.addCategory(name: category.title)
+        try! trackerStore.addNewTracker(tracker)
+        try! trackerCategoryStore.addCategory(name: category.title)
         
         filterTrackersByDate(currentDate)
 
