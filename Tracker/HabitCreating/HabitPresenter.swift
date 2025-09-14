@@ -97,9 +97,16 @@ final class HabitPresenter: HabitPresenterProtocol {
     func createNewTracker() {
         guard let name = trackerName, let selectedCategory else { return }
         
-        let newTracker = Tracker(id: UUID(), name: name, color: selectedColor ?? .clear, emoji: selectedEmoji ?? "", schedule: schedule, date: Date().ignoringTime)
-        
-        delegate?.didCreateTracker(newTracker, at: selectedCategory)
+        let scheduleForCoreData = schedule.map { String($0.rawValue) }
+        if scheduleForCoreData.isEmpty {
+            let result = "7"
+            let newTracker = Tracker(id: UUID(), name: name, color: selectedColor ?? .clear, emoji: selectedEmoji ?? "", schedule: result, date: Date().ignoringTime)
+            delegate?.didCreateTracker(newTracker, at: selectedCategory)
+        } else {
+            let result = scheduleForCoreData.joined(separator: "")
+            let newTracker = Tracker(id: UUID(), name: name, color: selectedColor ?? .clear, emoji: selectedEmoji ?? "", schedule: result, date: Date().ignoringTime)
+            delegate?.didCreateTracker(newTracker, at: selectedCategory)
+        }
     }
     
     func getShortFormWeekDays() -> String {

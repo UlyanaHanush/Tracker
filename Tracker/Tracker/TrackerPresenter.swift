@@ -37,13 +37,13 @@ final class TrackersPresenter: TrackersPresenterProtocol {
     // MARK: - Initializers
     
     init() {
-        let tracker = Tracker(id: UUID(), name: "Помочь бабушке", color: .red, emoji: "❤️", schedule: [.monday], date: Date())
+        let tracker = Tracker(id: UUID(), name: "Помочь бабушке", color: .red, emoji: "❤️", schedule: "1", date: Date())
         let category = TrackerCategory(title: "Обязательства перед семьей", trackers: [tracker])
         categories.append(category)
         
-        let tracker1 = Tracker(id: UUID(), name: "Сходить в бассейн", color: .green, emoji: "😻", schedule: [.friday, .tuesday], date: Date())
-        let tracker2 = Tracker(id: UUID(), name: "Устроить бьюти день", color: .blue, emoji: "🌺", schedule: [.thursday, .saturday], date: Date())
-        let tracker3 = Tracker(id: UUID(), name: "Занятия теннисом", color: .yellow, emoji: "❤️", schedule: [.sunday, .wednesday, .friday], date:  Date())
+        let tracker1 = Tracker(id: UUID(), name: "Сходить в бассейн", color: .green, emoji: "😻", schedule: "2", date: Date())
+        let tracker2 = Tracker(id: UUID(), name: "Устроить бьюти день", color: .blue, emoji: "🌺", schedule: "3", date: Date())
+        let tracker3 = Tracker(id: UUID(), name: "Занятия теннисом", color: .yellow, emoji: "❤️", schedule: "4", date:  Date())
         let category2 = TrackerCategory(title: "Красота", trackers: [tracker1, tracker2, tracker3])
         categories.append(category2)
     }
@@ -52,11 +52,11 @@ final class TrackersPresenter: TrackersPresenterProtocol {
     
     func addTracker(_ tracker: Tracker, at category: TrackerCategory) {
         
-        try! trackerStore.addNewTracker(tracker)
-        try! trackerCategoryStore.addCategory(name: category.title)
+//        try! trackerStore.addNewTracker(tracker)
+//        try! trackerCategoryStore.addCategory(name: category.title)
         
-        //TODO: filterTrackersByDate(currentDate)
-        
+        filterTrackersByDate(currentDate)
+
         view?.didAddTracker()
     }
     
@@ -78,16 +78,7 @@ final class TrackersPresenter: TrackersPresenterProtocol {
     }
     
     func filterTrackersByDate(_ date: Date) {
-        let trackers = trackerStore.tracker
-        guard let filteredTitle = trackerCategoryStore.trackerCategory.first?.title else { return }
-        
-        let filteredTrackers = trackers.filter { tracker in
-            tracker.schedule.count == 0 && tracker.date == date.ignoringTime || tracker.schedule.contains(weekDay(from: date))
-        }
-
-        
-        self.filteredCategories = [TrackerCategory(title: filteredTitle, trackers: filteredTrackers)]
-        
+        visibleTracker = trackerStore.filterTrackersByDate(date)
         view?.didFilterTrackersByDate()
     }
     

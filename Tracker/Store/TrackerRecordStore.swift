@@ -145,14 +145,11 @@ final class TrackerRecordStore: NSObject {
     func isTrackerEmpty(_ trackerRecord : TrackerRecord) -> Bool {
         let request = NSFetchRequest<TrackerRecordCoreData>(entityName: "TrackerRecordCoreData")
         
-        let tracker = try? context.fetch(request)
-        
         let idPredicate = NSPredicate(format: "%K == %@", #keyPath(TrackerRecordCoreData.recordId), trackerRecord.id.uuidString)
         let datePredicate = NSPredicate(format: "%K == %@", #keyPath(TrackerRecordCoreData.recordData), trackerRecord.date as NSDate)
         request.predicate = NSCompoundPredicate(type: .and, subpredicates: [idPredicate, datePredicate])
         
         let completedTrackers = try! context.fetch(request)
-        //print(completedTrackers.first?.recordData ?? "")
         
         let isTrackerCompleted = completedTrackers.isEmpty
         return isTrackerCompleted

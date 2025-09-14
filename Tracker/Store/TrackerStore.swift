@@ -99,17 +99,24 @@ final class TrackerStore: NSObject {
         }
     }
     
-    func filterTrackersByDate(_ tracker: Tracker, _ date: Date) {
+    func filterTrackersByDate(_ date: Date) -> [Tracker] {
         let weekDay = weekDay(from: date)
         let request = NSFetchRequest<TrackerCoreData>(entityName: "TrackerCoreData")
         
-        //let schedulePredicate = NSPredicate(format: "TrackerCoreData.schedule IN %@", weekDay as! CVarArg)
-        //let schedulePredicate = NSPredicate(format: "SUBQUERY(TrackerCoreData.schedule, $item, $item.someProperty == %d).count > 0", 123)
-        //let datePredicate = NSPredicate(format: "%K == %@", #keyPath(TrackerCoreData.date), date.ignoringTime as NSDate)
-        //request.predicate = NSCompoundPredicate(type: .and, subpredicates: [schedulePredicate, datePredicate])
-        //request.predicate = schedulePredicate
+        let habit = NSPredicate(format: "%K CONTAINS[n] %@", #keyPath(TrackerCoreData.schedule), weekDay)
+        let unRegularEvent = NSPredicate(format: "%K == %@ AND %K CONTAINS[n] %@", #keyPath(TrackerCoreData.date), date.ignoringTime as NSDate, #keyPath(TrackerCoreData.schedule), "7")
         
-        let tracker = try! context.fetch(request)
+        request.predicate = NSCompoundPredicate(type: .or, subpredicates: [habit, unRegularEvent])
+        
+        guard
+            let objects = try? context.fetch(request),
+            let tracker = try? objects.map({ try self.tracker(from: $0) })
+        else {
+            print("\(#file):\(#line)] \(#function) Ошибка получения tracker")
+            return []
+        }
+        print(tracker.count)
+        return tracker
     }
 
     // MARK: - Private Methods
@@ -120,7 +127,7 @@ final class TrackerStore: NSObject {
         trackerCoreData.emoji = tracker.emoji
         trackerCoreData.id = tracker.id
         trackerCoreData.date = tracker.date
-        trackerCoreData.schedule = tracker.schedule as NSObject
+        trackerCoreData.schedule = tracker.schedule
     }
 
     private func tracker(from trackerCoreData: TrackerCoreData) throws -> Tracker {
@@ -139,7 +146,7 @@ final class TrackerStore: NSObject {
         guard let date = trackerCoreData.date else {
             throw TrackerStoreError.decodingErrorInvalidDate
         }
-        guard let schedule = trackerCoreData.schedule as? [WeekDay] else {
+        guard let schedule = trackerCoreData.schedule else {
             throw TrackerStoreError.decodingErrorInvalidSchedule
         }
         return Tracker(
@@ -152,12 +159,13 @@ final class TrackerStore: NSObject {
         )
     }
     
-    private func weekDay(from date: Date) -> WeekDay {
+    private func weekDay(from date: Date) -> String {
         let calendar = Calendar.current
         let weekday = calendar.component(.weekday, from: date)
         let adjustedWeekday = AdjustedWeekday(rawValue: weekday)
-        guard let weekDayForm = adjustedWeekday?.weekDayForm else { return WeekDay.monday }
-        return weekDayForm
+        guard let weekDayForm = adjustedWeekday?.weekDayForm.rawValue else { return "1" }
+        let weekDayFormAsString = String(weekDayForm)
+        return weekDayFormAsString
     }
 }
 
