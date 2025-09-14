@@ -372,8 +372,9 @@ extension TrackerViewController: UISearchBarDelegate {
 extension TrackerViewController: TrackerStoreDelegate {
     func store(_ store: TrackerStore, didUpdate update: TrackerStoreUpdate) {
         //visibleTracker = trackerStore.tracker
-        //guard let presenter = presenter else { return }
-        //presenter.visibleTracker = presenter.visibleTracker
+        guard let presenter = presenter else { return }
+        presenter.filterTrackersByDate(Date().ignoringTime)
+        
         trackersCollectionView.performBatchUpdates {
             let insertedIndexPaths = update.insertedIndexes.map { IndexPath(item: $0, section: 0) }
             let deletedIndexPaths = update.deletedIndexes.map { IndexPath(item: $0, section: 0) }
