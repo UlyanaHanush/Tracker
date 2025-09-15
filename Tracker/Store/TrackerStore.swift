@@ -108,14 +108,16 @@ final class TrackerStore: NSObject {
         
         request.predicate = NSCompoundPredicate(type: .or, subpredicates: [habit, unRegularEvent])
         
-        guard
-            let objects = try? context.fetch(request),
-            let tracker = try? objects.map({ try self.tracker(from: $0) })
-        else {
-            print("\(#file):\(#line)] \(#function) Ошибка получения tracker")
-            return []
-        }
-        print(tracker.count)
+        fetchedResultsController?.fetchRequest.predicate = NSCompoundPredicate(type: .or, subpredicates: [habit, unRegularEvent])
+        
+//        guard
+//            let objects = try? context.fetch(request),
+//            let tracker = try? objects.map({ try self.tracker(from: $0) })
+//        else {
+//            print("\(#file):\(#line)] \(#function) Ошибка получения tracker")
+//            return []
+//        }
+//        try? fetchedTrackerController?.performFetch()
         return tracker
     }
 
@@ -172,6 +174,18 @@ final class TrackerStore: NSObject {
 // MARK: - NSFetchedResultsControllerDelegate
 
 extension TrackerStore: NSFetchedResultsControllerDelegate {
+    var numberOfSections: Int {
+        fetchedResultsController.sections?.count ?? 0
+    }
+
+    func numberOfRowsInSection(_ section: Int) -> Int {
+        fetchedResultsController.sections?[section].numberOfObjects ?? 0
+    }
+
+    func object(at indexPath: IndexPath) -> TrackerCoreData? {
+        fetchedResultsController.object(at: indexPath)
+    }
+    
     func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
         insertedIndexes = IndexSet()
         deletedIndexes = IndexSet()

@@ -32,8 +32,6 @@ final class TrackersPresenter: TrackersPresenterProtocol {
     var currentDate: Date = Date().ignoringTime
     var filteredCategories: [TrackerCategory] = []
     
-    var visibleTracker: [Tracker] = []
-    
     // MARK: - Initializers
     
     init() {
@@ -55,7 +53,7 @@ final class TrackersPresenter: TrackersPresenterProtocol {
         try! trackerStore.addNewTracker(tracker)
         try! trackerCategoryStore.addCategory(name: category.title)
         
-        filterTrackersByDate(currentDate)
+        //filterTrackersByDate(currentDate)
 
         view?.didAddTracker()
     }
@@ -78,7 +76,8 @@ final class TrackersPresenter: TrackersPresenterProtocol {
     }
     
     func filterTrackersByDate(_ date: Date) {
-        visibleTracker = trackerStore.filterTrackersByDate(date)
+        //visibleTracker = trackerStore.filterTrackersByDate(date)
+        //trackerStore.filterTrackersByDate(date)
         view?.didFilterTrackersByDate()
     }
     
