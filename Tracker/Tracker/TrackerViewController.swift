@@ -174,10 +174,6 @@ final class TrackerViewController: UIViewController, TrackerTypeDelegate, HabitC
 
         setupConstraints()
         setupNavigationBar()
-        
-//        if let data = presenter?.currentDate {
-//            presenter?.filterTrackersByDate(data)
-//        }
 
         updateEmptyScreenVisibility()
     }
@@ -236,17 +232,10 @@ final class TrackerViewController: UIViewController, TrackerTypeDelegate, HabitC
 extension TrackerViewController: UICollectionViewDataSource {
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         return trackerStore.numberOfSections
-        
-        //return presenter?.visibleTracker.count ?? 0
-        //return 1
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return  trackerStore.numberOfRowsInSection(section)
-        
-        //return presenter?.filteredCategories[section].trackers.count ?? 0
-        //guard let presenter else { return 0 }
-        //return trackerStore.filterTrackersByDate(presenter.currentDate).count
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -257,10 +246,7 @@ extension TrackerViewController: UICollectionViewDataSource {
         
         guard let presenter else { return UICollectionViewCell() }
         
-        //guard let tracker = trackerStore.object(at: indexPath) else { return UICollectionViewCell() }
-        
-        let tracker = presenter.filteredCategories[indexPath.section].trackers[indexPath.row]
-        //let tracker = trackerStore.filterTrackersByDate(presenter.currentDate)[indexPath.row]
+        guard let tracker = trackerStore.trackerObject(at: indexPath) else { return UICollectionViewCell() }
         
         let currentDate = presenter.currentDate
         let isCompleted = !presenter.isTrackerEmpty(tracker, date: presenter.currentDate)
@@ -371,10 +357,6 @@ extension TrackerViewController: UISearchBarDelegate {
 
 extension TrackerViewController: TrackerStoreDelegate {
     func store(_ store: TrackerStore, didUpdate update: TrackerStoreUpdate) {
-        //visibleTracker = trackerStore.tracker
-//        guard let presenter = presenter else { return }
-//        trackerStore.filterTrackersByDate(presenter.currentDate)
-        
         trackersCollectionView.performBatchUpdates {
             let insertedIndexPaths = update.insertedIndexes.map { IndexPath(item: $0, section: 0) }
             let deletedIndexPaths = update.deletedIndexes.map { IndexPath(item: $0, section: 0) }

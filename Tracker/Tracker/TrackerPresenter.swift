@@ -49,11 +49,8 @@ final class TrackersPresenter: TrackersPresenterProtocol {
     // MARK: - Publike Methods
     
     func addTracker(_ tracker: Tracker, at category: TrackerCategory) {
-        
         try! trackerStore.addNewTracker(tracker)
         try! trackerCategoryStore.addCategory(name: category.title)
-        
-        //filterTrackersByDate(currentDate)
 
         view?.didAddTracker()
     }
@@ -76,8 +73,7 @@ final class TrackersPresenter: TrackersPresenterProtocol {
     }
     
     func filterTrackersByDate(_ date: Date) {
-        //visibleTracker = trackerStore.filterTrackersByDate(date)
-        //trackerStore.filterTrackersByDate(date)
+        trackerStore.updateFilterWith(selectedDate: date)
         view?.didFilterTrackersByDate()
     }
     

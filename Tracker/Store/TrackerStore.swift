@@ -39,18 +39,8 @@ final class TrackerStore: NSObject {
     
     // MARK: - Publike Properties
     
-    var tracker: [Tracker] {
-        guard
-            let objects = self.fetchedResultsController.fetchedObjects,
-            let tracker = try? objects.map({ try self.tracker(from: $0) })
-        else {
-            print("\(#file):\(#line)] \(#function) Ошибка получения tracker")
-            return []
-        }
-        return tracker
-    }
-    
     weak var delegate: TrackerStoreDelegate?
+    var selectedDate: Date = Date().ignoringTime
     
     // MARK: - Private Properties
     
@@ -70,6 +60,8 @@ final class TrackerStore: NSObject {
         super.init()
         
         let fetchRequest = TrackerCoreData.fetchRequest()
+        fetchRequest.predicate = createPredicateWith(selectedDate: self.selectedDate)
+        
         fetchRequest.sortDescriptors = [
             NSSortDescriptor(keyPath: \TrackerCoreData.date, ascending: true)
         ]
@@ -99,27 +91,33 @@ final class TrackerStore: NSObject {
         }
     }
     
-    func filterTrackersByDate(_ date: Date) -> [Tracker] {
-        let weekDay = weekDay(from: date)
-        let request = NSFetchRequest<TrackerCoreData>(entityName: "TrackerCoreData")
+    func createPredicateWith(selectedDate: Date) -> NSPredicate? {
+        let weekDay = weekDay(from: selectedDate)
         
         let habit = NSPredicate(format: "%K CONTAINS[n] %@", #keyPath(TrackerCoreData.schedule), weekDay)
-        let unRegularEvent = NSPredicate(format: "%K == %@ AND %K CONTAINS[n] %@", #keyPath(TrackerCoreData.date), date.ignoringTime as NSDate, #keyPath(TrackerCoreData.schedule), "7")
+        let unRegularEvent = NSPredicate(format: "%K == %@ AND %K CONTAINS[n] %@", #keyPath(TrackerCoreData.date), selectedDate.ignoringTime as NSDate, #keyPath(TrackerCoreData.schedule), "7")
         
-        request.predicate = NSCompoundPredicate(type: .or, subpredicates: [habit, unRegularEvent])
-        
-        fetchedResultsController?.fetchRequest.predicate = NSCompoundPredicate(type: .or, subpredicates: [habit, unRegularEvent])
-        
-//        guard
-//            let objects = try? context.fetch(request),
-//            let tracker = try? objects.map({ try self.tracker(from: $0) })
-//        else {
-//            print("\(#file):\(#line)] \(#function) Ошибка получения tracker")
-//            return []
-//        }
-//        try? fetchedTrackerController?.performFetch()
+        let nsCompoundPredicate = NSCompoundPredicate(type: .or, subpredicates: [habit, unRegularEvent])
+        return nsCompoundPredicate
+    }
+    
+    func trackerObject(at indexPath: IndexPath) -> Tracker? {
+        let objects = fetchedResultsController.object(at: indexPath)
+        guard let tracker = try? tracker(from: objects) else {
+            print("\(#file):\(#line)] \(#function) Ошибка получения tracker")
+            return nil
+        }
         return tracker
     }
+    
+    func updateFilterWith(selectedDate currentDate: Date) {
+        self.selectedDate = currentDate
+        
+        fetchedResultsController?.fetchRequest.predicate = createPredicateWith(selectedDate: currentDate)
+        
+        try? fetchedResultsController?.performFetch()
+    }
+    
 
     // MARK: - Private Methods
     
