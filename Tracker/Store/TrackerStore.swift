@@ -42,6 +42,17 @@ final class TrackerStore: NSObject {
     weak var delegate: TrackerStoreDelegate?
     var selectedDate: Date = Date().ignoringTime
     
+    var tracker: [Tracker] {
+        guard
+            let objects = self.fetchedResultsController.fetchedObjects,
+            let tracker = try? objects.map({ try self.tracker(from: $0) })
+        else {
+            print("\(#file):\(#line)] \(#function) Ошибка получения trackerRecord")
+            return []
+        }
+        return tracker
+    }
+    
     // MARK: - Private Properties
     
     private var fetchedResultsController: NSFetchedResultsController<TrackerCoreData>!
@@ -95,27 +106,33 @@ final class TrackerStore: NSObject {
         let weekDay = weekDay(from: selectedDate)
         
         let habit = NSPredicate(format: "%K CONTAINS[n] %@", #keyPath(TrackerCoreData.schedule), weekDay)
-        let unRegularEvent = NSPredicate(format: "%K == %@ AND %K CONTAINS[n] %@", #keyPath(TrackerCoreData.date), selectedDate.ignoringTime as NSDate, #keyPath(TrackerCoreData.schedule), "7")
+        let unRegularEvent = NSPredicate(format: "%K == %@ AND %K == %@", #keyPath(TrackerCoreData.date), selectedDate as NSDate, #keyPath(TrackerCoreData.schedule), "7")
         
         let nsCompoundPredicate = NSCompoundPredicate(type: .or, subpredicates: [habit, unRegularEvent])
         return nsCompoundPredicate
     }
     
-    func trackerObject(at indexPath: IndexPath) -> Tracker? {
-        let objects = fetchedResultsController.object(at: indexPath)
-        guard let tracker = try? tracker(from: objects) else {
-            print("\(#file):\(#line)] \(#function) Ошибка получения tracker")
-            return nil
-        }
-        return tracker
-    }
-    
     func updateFilterWith(selectedDate currentDate: Date) {
         self.selectedDate = currentDate
         
-        fetchedResultsController?.fetchRequest.predicate = createPredicateWith(selectedDate: currentDate)
+        let fetchRequest = TrackerCoreData.fetchRequest()
+        fetchRequest.predicate = createPredicateWith(selectedDate: currentDate)
+
+        fetchRequest.sortDescriptors = [
+            NSSortDescriptor(key: "date", ascending: false)
+        ]
+
+        let controller = NSFetchedResultsController(
+            fetchRequest: fetchRequest,
+            managedObjectContext: context,
+            sectionNameKeyPath: nil,
+            cacheName: nil
+        )
+        controller.delegate = self
         
-        try? fetchedResultsController?.performFetch()
+        self.fetchedResultsController = controller
+        
+        try? fetchedResultsController.performFetch()
     }
     
 
@@ -180,8 +197,13 @@ extension TrackerStore: NSFetchedResultsControllerDelegate {
         fetchedResultsController.sections?[section].numberOfObjects ?? 0
     }
 
-    func object(at indexPath: IndexPath) -> TrackerCoreData? {
-        fetchedResultsController.object(at: indexPath)
+    func object(at indexPath: IndexPath) -> Tracker? {
+        let objects = fetchedResultsController.object(at: indexPath)
+        guard let tracker = try? tracker(from: objects) else {
+            print("\(#file):\(#line)] \(#function) Ошибка получения tracker")
+            return nil
+        }
+        return tracker
     }
     
     func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {

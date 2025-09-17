@@ -30,7 +30,6 @@ final class TrackersPresenter: TrackersPresenterProtocol {
     var categories: [TrackerCategory] = []
     var search: String = ""
     var currentDate: Date = Date().ignoringTime
-    var filteredCategories: [TrackerCategory] = []
     
     // MARK: - Initializers
     

@@ -144,6 +144,7 @@ final class TrackerViewController: UIViewController, TrackerTypeDelegate, HabitC
     @IBAction private func datePickerValueChanged(_ sender: UIDatePicker) {
         presenter?.currentDate = sender.date
         presenter?.filterTrackersByDate(sender.date)
+        //trackersCollectionView.reloadData()
     }
     
     // MARK: - Private Methods
@@ -246,7 +247,7 @@ extension TrackerViewController: UICollectionViewDataSource {
         
         guard let presenter else { return UICollectionViewCell() }
         
-        guard let tracker = trackerStore.trackerObject(at: indexPath) else { return UICollectionViewCell() }
+        guard let tracker = trackerStore.object(at: indexPath) else { return UICollectionViewCell() }
         
         let currentDate = presenter.currentDate
         let isCompleted = !presenter.isTrackerEmpty(tracker, date: presenter.currentDate)
