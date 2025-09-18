@@ -8,20 +8,11 @@
 import CoreData
 import UIKit
 
-enum TrackerCategoryStoreError: Error {
-    case decodingErrorInvalidTitle
-}
-
 protocol TrackerCategoryStoreDelegate: AnyObject {
     func store(
         _ store: TrackerCategoryStore,
         didUpdate update: TrackerCategoryStoreUpdate
     )
-}
-
-struct TrackerCategoryStoreUpdate {
-    let insertedIndexes: IndexSet
-    let deletedIndexes: IndexSet
 }
 
 class TrackerCategoryStore: NSObject {
@@ -111,40 +102,4 @@ class TrackerCategoryStore: NSObject {
 
 // MARK: - NSFetchedResultsControllerDelegate
 
-extension TrackerCategoryStore: NSFetchedResultsControllerDelegate {
-    func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-        insertedIndexes = IndexSet()
-        deletedIndexes = IndexSet()
-    }
-    
-    func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-        delegate?.store(
-            self,
-            didUpdate: TrackerCategoryStoreUpdate(
-                insertedIndexes: insertedIndexes!,
-                deletedIndexes: deletedIndexes!
-            )
-        )
-        insertedIndexes = nil
-        deletedIndexes = nil
-    }
-    
-    func controller(
-        _ controller: NSFetchedResultsController<NSFetchRequestResult>,
-        didChange anObject: Any,
-        at indexPath: IndexPath?,
-        for type: NSFetchedResultsChangeType,
-        newIndexPath: IndexPath?
-    ) {
-        switch type {
-        case .insert:
-            guard let indexPath = newIndexPath else { fatalError() }
-            insertedIndexes?.insert(indexPath.item)
-        case .delete:
-            guard let indexPath = indexPath else { fatalError() }
-            deletedIndexes?.insert(indexPath.item)
-        default:
-            break
-        }
-    }
-}
+extension TrackerCategoryStore: NSFetchedResultsControllerDelegate {}

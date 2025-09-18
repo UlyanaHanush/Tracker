@@ -8,22 +8,11 @@
 import CoreData
 import UIKit
 
-enum TrackerRecordStoreError: Error {
-    case decodingErrorInvalidId
-    case decodingErrorInvalidDate
-    case deleteRecordError
-}
-
 protocol TrackerRecordStoreDelegate: AnyObject {
     func store(
         _ store: TrackerRecordStore,
         didUpdate update: TrackerRecordStoreUpdate
     )
-}
-
-struct TrackerRecordStoreUpdate {
-    let insertedIndexes: IndexSet
-    let deletedIndexes: IndexSet
 }
 
 final class TrackerRecordStore: NSObject {
@@ -80,21 +69,6 @@ final class TrackerRecordStore: NSObject {
     }
     
     // MARK: - Public Methods
-    
-    func trackerRecord(from trackerRecordCoreData: TrackerRecordCoreData) throws -> TrackerRecord {
-        guard let id = trackerRecordCoreData.recordId else {
-            throw TrackerRecordStoreError.decodingErrorInvalidId
-        }
-        
-        guard let data = trackerRecordCoreData.recordData else {
-            throw TrackerRecordStoreError.decodingErrorInvalidDate
-        }
-        
-        return TrackerRecord(
-            id: id,
-            date: data
-        )
-    }
     
     func addRecord(_ trackerRecord: TrackerRecord) throws {
         let trackerRecordCoreData = TrackerRecordCoreData(context: context)
@@ -154,46 +128,27 @@ final class TrackerRecordStore: NSObject {
         let isTrackerCompleted = completedTrackers.isEmpty
         return isTrackerCompleted
     }
+    
+    // MARK: - Private Methods
+    
+    private func trackerRecord(from trackerRecordCoreData: TrackerRecordCoreData) throws -> TrackerRecord {
+        guard let id = trackerRecordCoreData.recordId else {
+            throw TrackerRecordStoreError.decodingErrorInvalidId
+        }
+        
+        guard let data = trackerRecordCoreData.recordData else {
+            throw TrackerRecordStoreError.decodingErrorInvalidDate
+        }
+        
+        return TrackerRecord(
+            id: id,
+            date: data
+        )
+    }
 }
 
 // MARK: - NSFetchedResultsControllerDelegate
 
-extension TrackerRecordStore: NSFetchedResultsControllerDelegate {
-    func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-        insertedIndexes = IndexSet()
-        deletedIndexes = IndexSet()
-    }
-    
-    func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-        delegate?.store(
-            self,
-            didUpdate: TrackerRecordStoreUpdate(
-                insertedIndexes: insertedIndexes!,
-                deletedIndexes: deletedIndexes!
-            )
-        )
-        insertedIndexes = nil
-        deletedIndexes = nil
-    }
-    
-    func controller(
-        _ controller: NSFetchedResultsController<NSFetchRequestResult>,
-        didChange anObject: Any,
-        at indexPath: IndexPath?,
-        for type: NSFetchedResultsChangeType,
-        newIndexPath: IndexPath?
-    ) {
-        switch type {
-        case .insert:
-            guard let indexPath = newIndexPath else { fatalError() }
-            insertedIndexes?.insert(indexPath.item)
-        case .delete:
-            guard let indexPath = indexPath else { fatalError() }
-            deletedIndexes?.insert(indexPath.item)
-        default:
-            break
-        }
-    }
-}
+extension TrackerRecordStore: NSFetchedResultsControllerDelegate {}
 
 

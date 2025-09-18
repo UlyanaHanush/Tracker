@@ -11,7 +11,6 @@ protocol TrackersPresenterProtocol {
     var view: TrackersViewControllerProtocol? { get }
     var categories: [TrackerCategory] { get }
     func addTracker(_ tracker: Tracker, at category: TrackerCategory)
-    func filterTrackersByDate(_ date: Date)
 }
 
 final class TrackersPresenter: TrackersPresenterProtocol {
@@ -20,7 +19,7 @@ final class TrackersPresenter: TrackersPresenterProtocol {
     
     let formatter = Formatter()
     
-    private let trackerStore = TrackerStore()
+    private let trackerStore = TrackerStore.shared
     private let trackerRecordStore = TrackerRecordStore()
     private let trackerCategoryStore = TrackerCategoryStore()
     
@@ -34,15 +33,8 @@ final class TrackersPresenter: TrackersPresenterProtocol {
     // MARK: - Initializers
     
     init() {
-        let tracker = Tracker(id: UUID(), name: "Помочь бабушке", color: .red, emoji: "❤️", schedule: "1", date: Date())
-        let category = TrackerCategory(title: "Обязательства перед семьей", trackers: [tracker])
+        let category = TrackerCategory(title: "Обязательства перед семьей", trackers: [])
         categories.append(category)
-        
-        let tracker1 = Tracker(id: UUID(), name: "Сходить в бассейн", color: .green, emoji: "😻", schedule: "2", date: Date())
-        let tracker2 = Tracker(id: UUID(), name: "Устроить бьюти день", color: .blue, emoji: "🌺", schedule: "3", date: Date())
-        let tracker3 = Tracker(id: UUID(), name: "Занятия теннисом", color: .yellow, emoji: "❤️", schedule: "4", date:  Date())
-        let category2 = TrackerCategory(title: "Красота", trackers: [tracker1, tracker2, tracker3])
-        categories.append(category2)
     }
     
     // MARK: - Publike Methods
@@ -69,11 +61,6 @@ final class TrackersPresenter: TrackersPresenterProtocol {
     func isTrackerEmpty(_ tracker: Tracker, date: Date) -> Bool {
         let trackerRecord = TrackerRecord(id: tracker.id, date: date)
         return trackerRecordStore.isTrackerEmpty(trackerRecord)
-    }
-    
-    func filterTrackersByDate(_ date: Date) {
-        trackerStore.updateFilterWith(selectedDate: date)
-        view?.didFilterTrackersByDate()
     }
     
     // MARK: - Private Methods

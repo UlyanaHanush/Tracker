@@ -8,20 +8,6 @@
 import CoreData
 import UIKit
 
-enum TrackerStoreError: Error {
-    case decodingErrorInvalidName
-    case decodingErrorInvalidColor
-    case decodingErrorInvalidEmoji
-    case decodingErrorInvalidId
-    case decodingErrorInvalidDate
-    case decodingErrorInvalidSchedule
-}
-
-struct TrackerStoreUpdate {
-    let insertedIndexes: IndexSet
-    let deletedIndexes: IndexSet
-}
-
 protocol TrackerStoreDelegate: AnyObject {
     func store(
         _ store: TrackerStore,
@@ -31,27 +17,17 @@ protocol TrackerStoreDelegate: AnyObject {
 
 final class TrackerStore: NSObject {
     
+    static let shared = TrackerStore()
+    
     // MARK: - Constants
     
     private let context: NSManagedObjectContext
     private let uiColorMarshaling = UIColorMarshaling()
-    private let daysValueTransformer = DaysValueTransformer()
     
     // MARK: - Publike Properties
     
     weak var delegate: TrackerStoreDelegate?
     var selectedDate: Date = Date().ignoringTime
-    
-    var tracker: [Tracker] {
-        guard
-            let objects = self.fetchedResultsController.fetchedObjects,
-            let tracker = try? objects.map({ try self.tracker(from: $0) })
-        else {
-            print("\(#file):\(#line)] \(#function) Ошибка получения trackerRecord")
-            return []
-        }
-        return tracker
-    }
     
     // MARK: - Private Properties
     
@@ -102,16 +78,6 @@ final class TrackerStore: NSObject {
         }
     }
     
-    func createPredicateWith(selectedDate: Date) -> NSPredicate? {
-        let weekDay = weekDay(from: selectedDate)
-        
-        let habit = NSPredicate(format: "%K CONTAINS[n] %@", #keyPath(TrackerCoreData.schedule), weekDay)
-        let unRegularEvent = NSPredicate(format: "%K == %@ AND %K == %@", #keyPath(TrackerCoreData.date), selectedDate as NSDate, #keyPath(TrackerCoreData.schedule), "7")
-        
-        let nsCompoundPredicate = NSCompoundPredicate(type: .or, subpredicates: [habit, unRegularEvent])
-        return nsCompoundPredicate
-    }
-    
     func updateFilterWith(selectedDate currentDate: Date) {
         self.selectedDate = currentDate
         
@@ -134,7 +100,6 @@ final class TrackerStore: NSObject {
         
         try? fetchedResultsController.performFetch()
     }
-    
 
     // MARK: - Private Methods
     
@@ -183,6 +148,16 @@ final class TrackerStore: NSObject {
         guard let weekDayForm = adjustedWeekday?.weekDayForm.rawValue else { return "1" }
         let weekDayFormAsString = String(weekDayForm)
         return weekDayFormAsString
+    }
+    
+    private func createPredicateWith(selectedDate: Date) -> NSPredicate? {
+        let weekDay = weekDay(from: selectedDate)
+        
+        let habit = NSPredicate(format: "%K CONTAINS[n] %@", #keyPath(TrackerCoreData.schedule), weekDay)
+        let unRegularEvent = NSPredicate(format: "%K == %@ AND %K == %@", #keyPath(TrackerCoreData.date), selectedDate as NSDate, #keyPath(TrackerCoreData.schedule), "7")
+        
+        let nsCompoundPredicate = NSCompoundPredicate(type: .or, subpredicates: [habit, unRegularEvent])
+        return nsCompoundPredicate
     }
 }
 

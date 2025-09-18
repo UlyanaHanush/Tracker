@@ -20,7 +20,6 @@ protocol TrackerCollectionViewCellDelegate: AnyObject {
 protocol TrackersViewControllerProtocol: AnyObject {
     var presenter: TrackersPresenter? { get }
     func didAddTracker()
-    func didFilterTrackersByDate()
 }
 
 import UIKit
@@ -29,7 +28,7 @@ final class TrackerViewController: UIViewController, TrackerTypeDelegate, HabitC
     
     // MARK: - Constants
     
-    private let trackerStore = TrackerStore()
+    private let trackerStore = TrackerStore.shared
     private let trackerCategoryStore = TrackerCategoryStore()
     private let trackerRecordStore = TrackerRecordStore()
     
@@ -100,20 +99,12 @@ final class TrackerViewController: UIViewController, TrackerTypeDelegate, HabitC
         
 
         trackerStore.delegate = self
-        //trackerRecordStore.delegate = self
-        //trackerCategoryStore.delegate = self
-        
         addSubviews()
     }
     
     // MARK: - Publike Methods
 
     func didAddTracker() {
-        updateEmptyScreenVisibility()
-    }
-
-    func didFilterTrackersByDate() {
-        //trackersCollectionView.reloadData()
         updateEmptyScreenVisibility()
     }
     
@@ -142,9 +133,11 @@ final class TrackerViewController: UIViewController, TrackerTypeDelegate, HabitC
     }
     
     @IBAction private func datePickerValueChanged(_ sender: UIDatePicker) {
-        presenter?.currentDate = sender.date
-        presenter?.filterTrackersByDate(sender.date)
-        //trackersCollectionView.reloadData()
+        presenter?.currentDate = sender.date.ignoringTime
+        trackerStore.updateFilterWith(selectedDate: sender.date.ignoringTime)
+        updateEmptyScreenVisibility()
+        
+        trackersCollectionView.reloadData()
     }
     
     // MARK: - Private Methods
@@ -220,7 +213,6 @@ final class TrackerViewController: UIViewController, TrackerTypeDelegate, HabitC
     }
     
     private func updateEmptyScreenVisibility() {
-        //guard let categories = presenter?.filteredCategories else { return }
         guard let categories = trackerCategoryStore.trackerCategory.first?.title else { return }
         let hasVisibleEmptyScreen = categories.isEmpty
         emptyTrackerImage.isHidden = hasVisibleEmptyScreen ? false: true
@@ -250,6 +242,7 @@ extension TrackerViewController: UICollectionViewDataSource {
         guard let tracker = trackerStore.object(at: indexPath) else { return UICollectionViewCell() }
         
         let currentDate = presenter.currentDate
+
         let isCompleted = !presenter.isTrackerEmpty(tracker, date: presenter.currentDate)
       
         let completedDaysCount = presenter.countCompletedDays(for:tracker)
@@ -358,34 +351,6 @@ extension TrackerViewController: UISearchBarDelegate {
 
 extension TrackerViewController: TrackerStoreDelegate {
     func store(_ store: TrackerStore, didUpdate update: TrackerStoreUpdate) {
-        trackersCollectionView.performBatchUpdates {
-            let insertedIndexPaths = update.insertedIndexes.map { IndexPath(item: $0, section: 0) }
-            let deletedIndexPaths = update.deletedIndexes.map { IndexPath(item: $0, section: 0) }
-            trackersCollectionView.insertItems(at: insertedIndexPaths)
-            trackersCollectionView.insertItems(at: deletedIndexPaths)
-        }
-    }
-}
-
-// MARK: - TrackerStoreDelegate
-
-extension TrackerViewController: TrackerCategoryStoreDelegate {
-    func store(_ store: TrackerCategoryStore, didUpdate update: TrackerCategoryStoreUpdate) {
-        //visibleTrackerCategory = trackerCategoryStore.trackerCategory
-        trackersCollectionView.performBatchUpdates {
-            let insertedIndexPaths = update.insertedIndexes.map { IndexPath(item: $0, section: 0) }
-            let deletedIndexPaths = update.deletedIndexes.map { IndexPath(item: $0, section: 0) }
-            trackersCollectionView.insertItems(at: insertedIndexPaths)
-            trackersCollectionView.insertItems(at: deletedIndexPaths)
-        }
-    }
-}
-
-// MARK: - TrackerRecordDelegate
-
-extension TrackerViewController: TrackerRecordStoreDelegate {
-    func store(_ store: TrackerRecordStore, didUpdate update: TrackerRecordStoreUpdate) {
-        //visibleTrackerRecord = trackerRecordStore.trackerRecord
         trackersCollectionView.performBatchUpdates {
             let insertedIndexPaths = update.insertedIndexes.map { IndexPath(item: $0, section: 0) }
             let deletedIndexPaths = update.deletedIndexes.map { IndexPath(item: $0, section: 0) }

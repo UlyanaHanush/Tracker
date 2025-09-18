@@ -26,9 +26,7 @@ protocol HabitPresenterProtocol {
 final class HabitPresenter: HabitPresenterProtocol {
     
     // MARK: - Constants
-    
-    private let trackerStore = TrackerStore()
-    private let trackerCategoryStore = TrackerCategoryStore()
+
     let formatter = Formatter()
     
     // MARK: - Publike Properties

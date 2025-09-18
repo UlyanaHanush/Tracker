@@ -22,7 +22,7 @@ enum AdjustedWeekday: Int {
         case .monday: return WeekDay.monday
         case .tuesday: return WeekDay.tuesday
         case .wednesday: return WeekDay.wednesday
-        case .thursday: return WeekDay.tuesday
+        case .thursday: return WeekDay.thursday
         case .friday: return WeekDay.friday
         case .saturday: return WeekDay.saturday
         }
