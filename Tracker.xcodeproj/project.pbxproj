@@ -850,7 +850,7 @@
 			);
 			currentVersion = CE5B68842E7D803D002EABAA /* CoreDataTracker.xcdatamodel */;
 			name = CoreDataTracker.xcdatamodeld;
-			path = /Users/user/dev/projects/Tracker/Tracker/CoreDataTracker.xcdatamodeld;
+			path = CoreDataTracker.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;
 		};
