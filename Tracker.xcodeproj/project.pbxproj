@@ -31,6 +31,8 @@
 		CE5B68802E7C4A48002EABAA /* TrackerCategoryStoreUpdate .swift in Sources */ = {isa = PBXBuildFile; fileRef = CE5B687F2E7C4A48002EABAA /* TrackerCategoryStoreUpdate .swift */; };
 		CE5B68822E7C4A76002EABAA /* TrackerStoreUpdate.swift in Sources */ = {isa = PBXBuildFile; fileRef = CE5B68812E7C4A76002EABAA /* TrackerStoreUpdate.swift */; };
 		CE5B68852E7D803D002EABAA /* CoreDataTracker.xcdatamodeld in Sources */ = {isa = PBXBuildFile; fileRef = CE5B68832E7D803D002EABAA /* CoreDataTracker.xcdatamodeld */; };
+		CEC16B4F2FC7158200C59813 /* MyPageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEC16B4E2FC7158200C59813 /* MyPageViewController.swift */; };
+		CEC16B512FC715A800C59813 /* OnboardingViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEC16B502FC715A800C59813 /* OnboardingViewController.swift */; };
 		CEE4B1FA2E01A22100CB54CB /* TrackerCategoryStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEE4B1F92E01A22100CB54CB /* TrackerCategoryStore.swift */; };
 		CEE4B1FC2E01A28B00CB54CB /* TrackerRecordStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEE4B1FB2E01A28B00CB54CB /* TrackerRecordStore.swift */; };
 		CEE88A202E647EF400CDD59F /* UIColorMarshaling.swift in Sources */ = {isa = PBXBuildFile; fileRef = CEE88A1F2E647EF400CDD59F /* UIColorMarshaling.swift */; };
@@ -94,6 +96,8 @@
 		CE5B687F2E7C4A48002EABAA /* TrackerCategoryStoreUpdate .swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TrackerCategoryStoreUpdate .swift"; sourceTree = "<group>"; };
 		CE5B68812E7C4A76002EABAA /* TrackerStoreUpdate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerStoreUpdate.swift; sourceTree = "<group>"; };
 		CE5B68842E7D803D002EABAA /* CoreDataTracker.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = CoreDataTracker.xcdatamodel; sourceTree = "<group>"; };
+		CEC16B4E2FC7158200C59813 /* MyPageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyPageViewController.swift; sourceTree = "<group>"; };
+		CEC16B502FC715A800C59813 /* OnboardingViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingViewController.swift; sourceTree = "<group>"; };
 		CEE4B1F92E01A22100CB54CB /* TrackerCategoryStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerCategoryStore.swift; sourceTree = "<group>"; };
 		CEE4B1FB2E01A28B00CB54CB /* TrackerRecordStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerRecordStore.swift; sourceTree = "<group>"; };
 		CEE88A1F2E647EF400CDD59F /* UIColorMarshaling.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIColorMarshaling.swift; sourceTree = "<group>"; };
@@ -234,6 +238,15 @@
 			path = Models;
 			sourceTree = "<group>";
 		};
+		CEC16B4D2FC7150A00C59813 /* Onbording */ = {
+			isa = PBXGroup;
+			children = (
+				CEC16B4E2FC7158200C59813 /* MyPageViewController.swift */,
+				CEC16B502FC715A800C59813 /* OnboardingViewController.swift */,
+			);
+			name = Onbording;
+			sourceTree = "<group>";
+		};
 		CEEF7ADB2D6DEEE40047305A = {
 			isa = PBXGroup;
 			children = (
@@ -257,6 +270,7 @@
 		CEEF7AE62D6DEEE40047305A /* Tracker */ = {
 			isa = PBXGroup;
 			children = (
+				CEC16B4D2FC7150A00C59813 /* Onbording */,
 				CE5B68832E7D803D002EABAA /* CoreDataTracker.xcdatamodeld */,
 				CEEF7AF32D6DEEE70047305A /* Assets.xcassets */,
 				CEEF7AF52D6DEEE70047305A /* LaunchScreen.storyboard */,
@@ -446,6 +460,7 @@
 				CE0B65632DFEBA1D007E4EA4 /* TrackerStore.swift in Sources */,
 				CE2E67092D7DFCD100DF27D7 /* SchedulePresenter.swift in Sources */,
 				CE5B68772E7C493A002EABAA /* TrackerCategoryStoreError.swift in Sources */,
+				CEC16B4F2FC7158200C59813 /* MyPageViewController.swift in Sources */,
 				CE2E66FF2D7C9AB000DF27D7 /* TrackerType.swift in Sources */,
 				CEEF7B722D71DE450047305A /* TrackerRecord.swift in Sources */,
 				CE2E670B2D806D9700DF27D7 /* TrackerPresenter.swift in Sources */,
@@ -465,6 +480,7 @@
 				CEE4B1FC2E01A28B00CB54CB /* TrackerRecordStore.swift in Sources */,
 				CE5B687E2E7C4A25002EABAA /* TrackerRecordStoreUpdate.swift in Sources */,
 				CEEF7B742D7875D30047305A /* TrackerTypeViewController.swift in Sources */,
+				CEC16B512FC715A800C59813 /* OnboardingViewController.swift in Sources */,
 				CE2E67022D7CB93100DF27D7 /* TrackerTypePresenter.swift in Sources */,
 				CEE88A202E647EF400CDD59F /* UIColorMarshaling.swift in Sources */,
 				CE0B652E2D8DB072007E4EA4 /* SectionHabitCollectionView.swift in Sources */,
